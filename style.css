@@ -960,16 +960,17 @@ body {
     left: 50%;
     transform: translateX(-50%);
     color: white;
-    padding: 10px 20px;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 2000;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     opacity: 0;
     text-align: center;
-    min-width: 200px;
-    max-width: 85%;
+    min-width: 220px;
+    max-width: 90%;
     animation: toastIn 0.4s ease-out forwards;
+    line-height: 1.4;
 }
 
 @keyframes toastIn {
@@ -977,10 +978,19 @@ body {
     to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.toast-success { background-color: var(--success-color); }
-.toast-error { background-color: var(--danger-color); }
-.toast-warning { background-color: var(--warning-color); }
-.toast-info { background-color: var(--primary-color); }
+.toast-success { 
+    background: linear-gradient(135deg, var(--success-color) 0%, var(--success-dark) 100%);
+}
+.toast-error { 
+    background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-dark) 100%);
+}
+.toast-warning { 
+    background: linear-gradient(135deg, var(--warning-color) 0%, #F57C00 100%);
+}
+.toast-info { 
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    border: 2px solid #BBDEFB;
+}
 
 /* Disabled */
 input:disabled, button:disabled {
