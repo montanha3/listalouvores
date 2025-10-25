@@ -7,10 +7,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Tela de Seleção de Igreja -->
+    <div id="churchSelectionScreen" class="church-selection-screen">
+        <div class="church-selection-card">
+            <h1>📖 Lista de Louvores</h1>
+            <p class="subtitle">Selecione ou cadastre sua igreja</p>
+            
+            <div class="church-input-group">
+                <label for="churchSelect">Igreja:</label>
+                <input 
+                    type="text" 
+                    id="churchSelect" 
+                    list="existingChurches"
+                    placeholder="Digite o nome da igreja..."
+                    autocomplete="off"
+                >
+                <datalist id="existingChurches"></datalist>
+            </div>
+            
+            <button id="enterBtn" class="btn btn-success btn-large">
+                Entrar →
+            </button>
+            
+            <div id="churchInfo" class="church-info" style="display: none;">
+                <p>📊 <span id="churchStats"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none;">
         <!-- Header Compacto -->
         <header class="app-header">
-            <h1>📖 Lista de Louvores</h1>
+            <div class="header-content">
+                <h1>📖 Lista de Louvores</h1>
+                <div class="current-church" id="currentChurchDisplay"></div>
+            </div>
+            <button id="changeChurchBtn" class="btn-change-church">🔄 Trocar Igreja</button>
         </header>
 
         <!-- Seção de Busca -->
@@ -69,25 +101,14 @@
                         <h2 class="section-title">📝 Lista</h2>
                         <span id="songCounter" class="song-counter">0 louvores</span>
                     </div>
-                </div>
-
-                <div class="church-date-row">
-                    <input
-                        type="text"
-                        id="churchNameInput"
-                        class="church-input"
-                        placeholder="Nome da igreja..."
-                        list="churchSuggestions"
-                        autocomplete="off"
-                    >
-                    <datalist id="churchSuggestions"></datalist>
-                    
-                    <input
-                        type="date"
-                        id="listDate"
-                        class="date-input"
-                        title="Data da lista"
-                    >
+                    <div class="list-header-right">
+                        <input
+                            type="date"
+                            id="listDate"
+                            class="date-input"
+                            title="Data da lista"
+                        >
+                    </div>
                 </div>
 
                 <ul id="songList"></ul>
@@ -119,14 +140,6 @@
         <div id="savedSection" class="section">
             <div class="saved-lists-section card">
                 <h2 class="section-title">💾 Listas Salvas</h2>
-                
-                <div class="church-filter">
-                    <label for="filterChurch">Filtrar por igreja:</label>
-                    <select id="filterChurch" class="church-select">
-                        <option value="">Todas as igrejas</option>
-                    </select>
-                </div>
-
                 <div id="savedListsContainer">
                     <div class="empty-message">Carregando...</div>
                 </div>
@@ -137,23 +150,15 @@
         <div id="reportsSection" class="section">
             <div class="reports-section card">
                 <h2 class="section-title">📊 Relatórios</h2>
-                
-                <div class="church-filter">
-                    <label for="reportChurch">Igreja:</label>
-                    <select id="reportChurch" class="church-select">
-                        <option value="">Selecione uma igreja</option>
-                    </select>
-                </div>
-
                 <div id="reportContent">
-                    <div class="empty-message">Selecione uma igreja para ver os relatórios</div>
+                    <div class="empty-message">Carregando relatórios...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Menu Inferior -->
-    <nav class="bottom-menu">
+    <nav class="bottom-menu" id="bottomMenu" style="display: none;">
         <button class="menu-item active" data-section="searchSection">
             <span class="menu-icon">🔍</span>
             <span class="menu-label">Buscar</span>
@@ -189,7 +194,7 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-      import { getDatabase, ref, set, push, onValue, remove, query, orderByChild, get } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+      import { getDatabase, ref, set, push, onValue, remove, query, orderByChild, get, equalTo } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyD6dCUtxTRcRPTyKwI0Qh9_xspFHC7H9Wg",
@@ -204,7 +209,7 @@
       const app = initializeApp(firebaseConfig);
       const database = getDatabase(app);
 
-      window.firebaseDb = { database, ref, set, push, onValue, remove, query, orderByChild, get };
+      window.firebaseDb = { database, ref, set, push, onValue, remove, query, orderByChild, get, equalTo };
     </script>
 
     <script src="script.js"></script>
