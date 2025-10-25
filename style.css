@@ -31,11 +31,12 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: linear-gradient(135deg, #e9f5ff 0%, #e8eaf6 100%);
     min-height: 100vh;
-    padding: 10px 10px 70px 10px; /* Padding inferior para o menu */
+    padding: 10px 10px 70px 10px;
     line-height: 1.5;
     color: var(--text-dark);
     font-size: 14px;
     -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
 }
 
 .container {
@@ -255,13 +256,6 @@ body {
     flex-grow: 1;
 }
 
-.list-header-right {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
 .song-counter {
     background: #bbdefb;
     color: var(--primary-dark);
@@ -273,14 +267,38 @@ body {
     border: 1px solid var(--primary-color);
 }
 
+/* Church and Date Row */
+.church-date-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.church-input {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.church-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
 .date-input {
-    padding: 7px 10px;
+    padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: border-color 0.3s ease;
-    min-width: 120px;
+    min-width: 130px;
     appearance: none;
     -webkit-appearance: none;
 }
@@ -308,11 +326,23 @@ body {
     align-items: center;
     transition: all 0.2s ease-out;
     cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+#songList li.dragging {
+    opacity: 0.5;
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+#songList li.drag-over {
+    border-top: 3px solid var(--primary-color);
+    margin-top: 10px;
 }
 
 #songList li:active {
     cursor: grabbing;
-    background: #f0f0f0;
 }
 
 #songList li .song-info {
@@ -322,6 +352,7 @@ body {
     gap: 6px;
     margin-right: 5px;
     overflow: hidden;
+    pointer-events: none;
 }
 
 #songList li .song-number {
@@ -383,16 +414,6 @@ body {
     font-weight: 600;
 }
 
-.export-options {
-    margin-bottom: 10px;
-}
-
-.export-type {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
 .export-buttons {
     display: flex;
     gap: 8px;
@@ -413,6 +434,8 @@ body {
     justify-content: center;
     gap: 6px;
     white-space: nowrap;
+    flex: 1;
+    min-width: 120px;
 }
 
 .btn:active {
@@ -458,6 +481,7 @@ body {
 .btn-small {
     padding: 7px 12px;
     font-size: 0.8rem;
+    min-width: 80px;
 }
 
 .btn svg {
@@ -465,29 +489,38 @@ body {
     height: 16px;
 }
 
-/* Saved Lists */
-.saved-lists-controls {
-    display: flex;
-    gap: 8px;
+/* Church Filter */
+.church-filter {
     margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
-.list-name-input {
-    flex-grow: 1;
-    padding: 10px 12px;
+.church-filter label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.church-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.9rem;
-    min-width: 200px;
     outline: none;
-    transition: border-color 0.3s ease;
+    background: var(--bg-white);
+    cursor: pointer;
 }
 
-.list-name-input:focus {
+.church-select:focus {
     border-color: var(--primary-color);
 }
 
+/* Saved Lists */
 #savedListsContainer {
     display: flex;
     flex-direction: column;
@@ -519,6 +552,69 @@ body {
 .saved-list-actions {
     display: flex;
     gap: 8px;
+}
+
+/* Reports Section */
+.report-card {
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.report-card h3 {
+    color: var(--primary-dark);
+    font-size: 1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.report-list {
+    list-style: none;
+    padding: 0;
+}
+
+.report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.report-item:last-child {
+    border-bottom: none;
+}
+
+.report-song-info {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.report-song-number {
+    font-weight: 600;
+    color: var(--primary-dark);
+    min-width: 40px;
+    font-size: 0.85rem;
+}
+
+.report-song-title {
+    font-size: 0.85rem;
+    color: var(--text-dark);
+}
+
+.report-count {
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 /* Menu Inferior */
@@ -611,11 +707,6 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-.lyrics-modal-content {
-    max-width: 500px;
-    width: 90%;
-}
-
 .modal-close {
     position: absolute;
     right: 12px;
@@ -661,48 +752,6 @@ body {
     justify-content: center;
     margin-top: 15px;
     flex-wrap: wrap;
-}
-
-.lyrics-instructions {
-    color: var(--text-medium);
-    margin-bottom: 15px;
-    font-size: 0.85rem;
-    text-align: center;
-}
-
-#lyricsListContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.lyrics-item {
-    padding: 10px 12px;
-    background: var(--bg-light);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-left: 3px solid var(--success-color);
-}
-
-.lyrics-item:active {
-    background-color: #c8e6c9;
-    transform: translateX(2px);
-}
-
-.lyrics-item-header {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 4px;
-    font-size: 0.9rem;
-}
-
-.lyrics-item-hint {
-    font-size: 0.75rem;
-    color: var(--text-light);
 }
 
 /* Empty Message */
@@ -776,6 +825,7 @@ input:disabled, button:disabled {
     .btn {
         padding: 8px 12px;
         font-size: 0.8rem;
+        min-width: 100px;
     }
 }
 
