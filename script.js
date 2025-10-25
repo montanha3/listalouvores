@@ -3,10 +3,8 @@ let currentChurch = null;
 let allSongs = [];
 let selectedSongs = [];
 let churchLists = [];
-let touchStartY = 0;
-let touchStartX = 0;
-let draggedElement = null;
-let draggedIndex = -1;
+let customSongs = [];
+let editingSongId = null;
 
 // Elementos do DOM
 const churchSelectionScreen = document.getElementById('churchSelectionScreen');
@@ -32,24 +30,43 @@ const exportTextBtn = document.getElementById('exportTextBtn');
 const saveListBtn = document.getElementById('saveListBtn');
 const savedListsContainer = document.getElementById('savedListsContainer');
 const reportContent = document.getElementById('reportContent');
+
+// Gerenciar louvores
+const newSongTitle = document.getElementById('newSongTitle');
+const newSongNumber = document.getElementById('newSongNumber');
+const newSongLyrics = document.getElementById('newSongLyrics');
+const addCustomSongBtn = document.getElementById('addCustomSongBtn');
+const customSongsContainer = document.getElementById('customSongsContainer');
+
+// Modals
 const imageModal = document.getElementById('imageModal');
 const listCanvas = document.getElementById('listCanvas');
 const downloadImageBtn = document.getElementById('downloadImageBtn');
 const shareImageBtn = document.getElementById('shareImageBtn');
+const editSongModal = document.getElementById('editSongModal');
+const editSongTitle = document.getElementById('editSongTitle');
+const editSongNumber = document.getElementById('editSongNumber');
+const editSongLyrics = document.getElementById('editSongLyrics');
+const saveEditBtn = document.getElementById('saveEditBtn');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const reorderModal = document.getElementById('reorderModal');
+const reorderList = document.getElementById('reorderList');
+const saveReorderBtn = document.getElementById('saveReorderBtn');
 
 // Referência Firebase
 let dbRefLists = null;
-let allLists = [];
+let dbRefCustomSongs = null;
 
 // --- Inicialização ---
 document.addEventListener('DOMContentLoaded', () => {
     if (window.firebaseDb && window.firebaseDb.database) {
         try {
             dbRefLists = window.firebaseDb.ref(window.firebaseDb.database, 'lists');
+            dbRefCustomSongs = window.firebaseDb.ref(window.firebaseDb.database, 'customSongs');
             console.log("Firebase inicializado");
         } catch (error) {
-            console.error("Erro ao inicializar Firebase:", error);
-            showToast("Erro ao conectar com Firebase", "error");
+            console.error("Erro Firebase:", error);
+            showToast("Erro ao conectar", "error");
         }
     }
 
@@ -65,9 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupChurchSelection() {
     enterBtn.addEventListener('click', selectChurch);
     churchSelect.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            selectChurch();
-        }
+        if (e.key === 'Enter') selectChurch();
     });
 
     churchSelect.addEventListener('input', () => {
@@ -102,9 +117,7 @@ async function loadAllChurches() {
         const churches = new Set();
         snapshot.forEach(child => {
             const list = child.val();
-            if (list.churchName) {
-                churches.add(list.churchName);
-            }
+            if (list.churchName) churches.add(list.churchName);
         });
 
         existingChurches.innerHTML = '';
@@ -131,9 +144,7 @@ async function checkChurchStats(churchName) {
         let count = 0;
         snapshot.forEach(child => {
             const list = child.val();
-            if (list.churchName === churchName) {
-                count++;
-            }
+            if (list.churchName === churchName) count++;
         });
 
         if (count > 0) {
@@ -143,7 +154,7 @@ async function checkChurchStats(churchName) {
             churchInfo.style.display = 'none';
         }
     } catch (error) {
-        console.error('Erro ao verificar estatísticas:', error);
+        console.error('Erro:', error);
     }
 }
 
@@ -164,6 +175,7 @@ function selectChurch() {
     bottomMenu.style.display = 'flex';
     
     loadChurchData();
+    loadCustomSongs();
     showToast(`Bem-vindo, ${churchName}!`, 'success');
 }
 
@@ -189,7 +201,7 @@ async function loadChurchData() {
         updateSavedListsDisplay();
         generateReport();
     } catch (error) {
-        console.error('Erro ao carregar dados da igreja:', error);
+        console.error('Erro:', error);
         showToast('Erro ao carregar dados', 'error');
     }
 }
@@ -214,7 +226,6 @@ function setupBottomMenu() {
     });
 }
 
-// --- Funções Básicas ---
 function setTodayDate() {
     const today = new Date().toISOString().split('T')[0];
     listDate.value = today;
@@ -241,19 +252,19 @@ async function loadSongs() {
             .map(song => ({
                 ...song,
                 numero: String(song.numero || ''),
-                origem: origem
+                origem: origem,
+                isCustom: false
             }));
 
-        const igrejaSongs = processSongs(igrejaData, 'Igreja');
-        const criancasSongs = processSongs(criancasData, 'CIAS');
-        const avulsosSongs = processSongs(avulsosData, 'Avulsos');
-
-        allSongs = [...igrejaSongs, ...criancasSongs, ...avulsosSongs];
+        allSongs = [
+            ...processSongs(igrejaData, 'Igreja'),
+            ...processSongs(criancasData, 'CIAS'),
+            ...processSongs(avulsosData, 'Avulsos')
+        ];
 
         console.log(`${allSongs.length} louvores carregados`);
-
     } catch (error) {
-        console.error('Erro ao carregar louvores:', error);
+        console.error('Erro:', error);
         showToast('Erro ao carregar coletâneas', 'error');
     }
 }
@@ -274,6 +285,11 @@ function setupEventListeners() {
     exportImageBtn.addEventListener('click', generateImage);
     exportTextBtn.addEventListener('click', sendViaWhatsApp);
     saveListBtn.addEventListener('click', saveList);
+    
+    addCustomSongBtn.addEventListener('click', addCustomSong);
+    saveEditBtn.addEventListener('click', saveEditedSong);
+    cancelEditBtn.addEventListener('click', () => editSongModal.classList.remove('show'));
+    saveReorderBtn.addEventListener('click', saveReorder);
 
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -308,7 +324,6 @@ function handleSearchTypeChange() {
     
     searchInput.value = '';
     searchResults.innerHTML = '';
-    searchResults.style.display = 'none';
 }
 
 function handleSourceChange() {
@@ -326,31 +341,30 @@ function handleSourceChange() {
     
     searchInput.value = '';
     searchResults.innerHTML = '';
-    searchResults.style.display = 'none';
 }
 
-// --- Funções de Busca ---
+// --- Busca ---
 function handleSearch(event) {
     const searchTerm = event.target.value.trim().toLowerCase();
     searchResults.innerHTML = '';
     
-    if (searchTerm.length < 1) {
-        searchResults.style.display = 'none';
-        return;
-    }
+    if (searchTerm.length < 1) return;
 
     const selectedSource = document.querySelector('input[name="source"]:checked').value;
     const searchType = document.querySelector('input[name="searchType"]:checked').value;
 
+    // Combina louvores padrão com personalizados
+    const allSongsWithCustom = [...allSongs, ...customSongs];
+
     let results = [];
 
     if (searchType === 'number') {
-        results = allSongs.filter(song => {
+        results = allSongsWithCustom.filter(song => {
             const numero = song.numero.toLowerCase();
             return numero && numero.includes(searchTerm);
         });
     } else {
-        results = allSongs.filter(song => {
+        results = allSongsWithCustom.filter(song => {
             const titulo = song.titulo.toLowerCase();
             const letra = song.letra ? song.letra.toLowerCase() : '';
             return titulo.includes(searchTerm) || letra.includes(searchTerm);
@@ -366,30 +380,23 @@ function handleSearch(event) {
         const numB = parseInt(b.numero, 10);
         if (!isNaN(numA) && !isNaN(numB)) {
             if (numA !== numB) return numA - numB;
-        } else if (!isNaN(numA)) {
-            return -1;
-        } else if (!isNaN(numB)) {
-            return 1;
-        }
+        } else if (!isNaN(numA)) return -1;
+        else if (!isNaN(numB)) return 1;
         return a.titulo.localeCompare(b.titulo);
     });
 
-    displaySearchResults(results, selectedSource);
+    displaySearchResults(results.slice(0, 5), selectedSource);
 }
 
 function displaySearchResults(results, selectedSource) {
-    searchResults.innerHTML = '';
-    
     if (results.length === 0) {
         searchResults.innerHTML = '<div class="empty-message">Nenhum louvor encontrado</div>';
-        searchResults.style.display = 'block';
         return;
     }
 
-    const limitedResults = results.slice(0, 5);
     const showOrigin = selectedSource === 'Todas';
 
-    limitedResults.forEach(song => {
+    results.forEach(song => {
         const resultItem = document.createElement('div');
         resultItem.className = 'search-result-item';
         
@@ -408,19 +415,8 @@ function displaySearchResults(results, selectedSource) {
         resultItem.addEventListener('click', () => addSongToList(song));
         searchResults.appendChild(resultItem);
     });
-
-    if (results.length > 5) {
-        const moreMessage = document.createElement('div');
-        moreMessage.className = 'empty-message';
-        moreMessage.textContent = `Mostrando 5 de ${results.length}. Refine sua busca`;
-        moreMessage.style.fontSize = '0.75rem';
-        searchResults.appendChild(moreMessage);
-    }
-    
-    searchResults.style.display = 'block';
 }
 
-// Verificar se hino foi cantado recentemente (últimos 4 dias)
 function checkRecentSong(songData) {
     if (!currentChurch || churchLists.length === 0) return true;
 
@@ -440,7 +436,7 @@ function checkRecentSong(songData) {
             if (hasSong) {
                 const daysAgo = Math.floor((currentDate - listDateObj) / (1000 * 60 * 60 * 24));
                 const formattedDate = formatDateForDisplay(list.date);
-                const message = `Este hino foi cantado há ${daysAgo} ${daysAgo === 1 ? 'dia' : 'dias'} (${formattedDate}).\n\nDeseja adicionar mesmo assim?`;
+                const message = `Este hino foi cantado há ${daysAgo} ${daysAgo === 1 ? 'dia' : 'dias'} (${formattedDate}).\n\nAdicionar mesmo assim?`;
                 return confirm(message);
             }
         }
@@ -460,15 +456,12 @@ function addSongToList(songData) {
         return;
     }
 
-    // Verificar se foi cantado recentemente
-    const canAdd = checkRecentSong(songData);
-    if (!canAdd) return;
+    if (!checkRecentSong(songData)) return;
     
     selectedSongs.push(songData);
     updateSelectedList();
     searchInput.value = '';
     searchResults.innerHTML = '';
-    searchResults.style.display = 'none';
     showToast(`"${songData.titulo}" adicionado`, 'success');
 }
 
@@ -478,16 +471,25 @@ function updateSelectedList() {
     songCounter.textContent = `${count} ${count === 1 ? 'louvor' : 'louvores'}`;
 
     if (count === 0) {
-        songList.innerHTML = '<div class="empty-message">Busque e clique para adicionar</div>';
+        songList.innerHTML = '<div class="empty-message">Busque e adicione louvores</div>';
         exportSection.style.display = 'none';
         return;
     }
 
     exportSection.style.display = 'block';
 
+    // Botão de reordenar se houver mais de 1
+    if (count > 1) {
+        const reorderBtn = document.createElement('button');
+        reorderBtn.className = 'btn btn-secondary';
+        reorderBtn.style.marginBottom = '10px';
+        reorderBtn.innerHTML = '🔄 Reordenar Lista';
+        reorderBtn.addEventListener('click', openReorderModal);
+        songList.parentElement.insertBefore(reorderBtn, songList);
+    }
+
     selectedSongs.forEach((song, index) => {
         const listItem = document.createElement('li');
-        listItem.dataset.index = index;
         
         const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
         const originSpan = song.origem !== 'Igreja' ? `<span style="font-size:0.7rem;color:#999;margin-left:4px;">(${song.origem})</span>` : '';
@@ -498,125 +500,15 @@ function updateSelectedList() {
                 <span class="song-title">${song.titulo}</span>
                 ${originSpan}
             </div>
-            <button class="remove-btn" data-index="${index}" title="Remover">&times;</button>
+            <button class="remove-btn" data-index="${index}">&times;</button>
         `;
 
-        // Touch events
-        listItem.addEventListener('touchstart', handleTouchStart, { passive: false });
-        listItem.addEventListener('touchmove', handleTouchMove, { passive: false });
-        listItem.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-        // Mouse events
-        listItem.draggable = true;
-        listItem.addEventListener('dragstart', handleDragStart);
-        listItem.addEventListener('dragover', handleDragOver);
-        listItem.addEventListener('drop', handleDrop);
-        listItem.addEventListener('dragend', handleDragEnd);
-
-        listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
+        listItem.querySelector('.remove-btn').addEventListener('click', () => {
             removeSongFromList(index);
         });
 
         songList.appendChild(listItem);
     });
-}
-
-// --- Touch Drag ---
-function handleTouchStart(e) {
-    const touch = e.touches[0];
-    touchStartY = touch.clientY;
-    touchStartX = touch.clientX;
-    draggedElement = this;
-    draggedIndex = parseInt(this.dataset.index, 10);
-    
-    setTimeout(() => {
-        if (draggedElement) {
-            draggedElement.classList.add('dragging');
-        }
-    }, 100);
-}
-
-function handleTouchMove(e) {
-    if (!draggedElement) return;
-    
-    e.preventDefault();
-    const touch = e.touches[0];
-    const deltaY = Math.abs(touch.clientY - touchStartY);
-    
-    if (deltaY < 10) return;
-
-    const items = Array.from(songList.children);
-    const currentY = touch.clientY;
-    
-    items.forEach(item => {
-        if (item === draggedElement) return;
-        const rect = item.getBoundingClientRect();
-        if (currentY > rect.top && currentY < rect.bottom) {
-            items.forEach(i => i.classList.remove('drag-over'));
-            item.classList.add('drag-over');
-        }
-    });
-}
-
-function handleTouchEnd(e) {
-    if (!draggedElement) return;
-    
-    const items = Array.from(songList.children);
-    const dragOverItem = items.find(item => item.classList.contains('drag-over'));
-    
-    if (dragOverItem && draggedElement !== dragOverItem) {
-        const targetIndex = parseInt(dragOverItem.dataset.index, 10);
-        
-        const itemToMove = selectedSongs.splice(draggedIndex, 1)[0];
-        selectedSongs.splice(targetIndex, 0, itemToMove);
-        
-        updateSelectedList();
-    }
-    
-    items.forEach(item => {
-        item.classList.remove('dragging');
-        item.classList.remove('drag-over');
-    });
-    
-    draggedElement = null;
-    draggedIndex = -1;
-}
-
-// --- Mouse Drag ---
-function handleDragStart(e) {
-    draggedElement = this;
-    draggedIndex = parseInt(this.dataset.index, 10);
-    e.dataTransfer.setData('text/plain', draggedIndex);
-    e.dataTransfer.effectAllowed = 'move';
-    setTimeout(() => this.classList.add('dragging'), 0);
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    this.classList.add('drag-over');
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    this.classList.remove('drag-over');
-
-    if (draggedElement !== this) {
-        const targetIndex = parseInt(this.dataset.index, 10);
-        const itemToMove = selectedSongs.splice(draggedIndex, 1)[0];
-        selectedSongs.splice(targetIndex, 0, itemToMove);
-        updateSelectedList();
-    }
-}
-
-function handleDragEnd(e) {
-    this.classList.remove('dragging');
-    document.querySelectorAll('#songList li').forEach(item => item.classList.remove('drag-over'));
-    draggedElement = null;
-    draggedIndex = -1;
 }
 
 function removeSongFromList(index) {
@@ -637,10 +529,239 @@ function clearList() {
     }
 }
 
+// --- Reordenar ---
+function openReorderModal() {
+    reorderList.innerHTML = '';
+    
+    selectedSongs.forEach((song, index) => {
+        const listItem = document.createElement('li');
+        listItem.dataset.index = index;
+        
+        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+        
+        listItem.textContent = `${displayNumber ? displayNumber + ' - ' : ''}${song.titulo}`;
+        
+        listItem.addEventListener('touchstart', handleReorderTouchStart, { passive: false });
+        listItem.addEventListener('touchmove', handleReorderTouchMove, { passive: false });
+        listItem.addEventListener('touchend', handleReorderTouchEnd);
+        
+        reorderList.appendChild(listItem);
+    });
+    
+    reorderModal.classList.add('show');
+}
+
+let reorderDraggedElement = null;
+let reorderDraggedIndex = -1;
+let reorderTouchStartY = 0;
+
+function handleReorderTouchStart(e) {
+    reorderDraggedElement = this;
+    reorderDraggedIndex = parseInt(this.dataset.index, 10);
+    reorderTouchStartY = e.touches[0].clientY;
+    this.classList.add('dragging');
+}
+
+function handleReorderTouchMove(e) {
+    if (!reorderDraggedElement) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const currentY = touch.clientY;
+    
+    const items = Array.from(reorderList.children);
+    items.forEach(item => item.classList.remove('drag-over'));
+    
+    items.forEach(item => {
+        if (item === reorderDraggedElement) return;
+        const rect = item.getBoundingClientRect();
+        if (currentY > rect.top && currentY < rect.bottom) {
+            item.classList.add('drag-over');
+        }
+    });
+}
+
+function handleReorderTouchEnd(e) {
+    if (!reorderDraggedElement) return;
+    
+    const items = Array.from(reorderList.children);
+    const dragOverItem = items.find(item => item.classList.contains('drag-over'));
+    
+    if (dragOverItem && reorderDraggedElement !== dragOverItem) {
+        const targetIndex = parseInt(dragOverItem.dataset.index, 10);
+        const itemToMove = selectedSongs.splice(reorderDraggedIndex, 1)[0];
+        selectedSongs.splice(targetIndex, 0, itemToMove);
+    }
+    
+    items.forEach(item => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+    });
+    
+    reorderDraggedElement = null;
+    reorderDraggedIndex = -1;
+    
+    openReorderModal();
+}
+
+function saveReorder() {
+    reorderModal.classList.remove('show');
+    updateSelectedList();
+    showToast('Ordem salva', 'success');
+}
+
+// --- Louvores Personalizados ---
+async function loadCustomSongs() {
+    if (!window.firebaseDb || !dbRefCustomSongs || !currentChurch) return;
+
+    try {
+        const snapshot = await window.firebaseDb.get(dbRefCustomSongs);
+        customSongs = [];
+
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                const song = child.val();
+                if (song.churchName === currentChurch) {
+                    song.id = child.key;
+                    song.isCustom = true;
+                    customSongs.push(song);
+                }
+            });
+        }
+
+        displayCustomSongs();
+    } catch (error) {
+        console.error('Erro:', error);
+    }
+}
+
+function addCustomSong() {
+    const title = newSongTitle.value.trim();
+    
+    if (!title) {
+        showToast('Digite o título do louvor', 'warning');
+        newSongTitle.focus();
+        return;
+    }
+
+    const newSong = {
+        titulo: title,
+        numero: newSongNumber.value.trim(),
+        letra: newSongLyrics.value.trim(),
+        origem: document.querySelector('input[name="newSongType"]:checked').value,
+        churchName: currentChurch,
+        createdAt: new Date().toISOString()
+    };
+
+    const newSongRef = window.firebaseDb.push(dbRefCustomSongs);
+    
+    window.firebaseDb.set(newSongRef, newSong)
+        .then(() => {
+            showToast('Louvor adicionado!', 'success');
+            newSongTitle.value = '';
+            newSongNumber.value = '';
+            newSongLyrics.value = '';
+            loadCustomSongs();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showToast('Erro ao adicionar', 'error');
+        });
+}
+
+function displayCustomSongs() {
+    customSongsContainer.innerHTML = '';
+
+    if (customSongs.length === 0) {
+        customSongsContainer.innerHTML = '<div class="empty-message">Nenhum louvor personalizado</div>';
+        return;
+    }
+
+    customSongs.forEach(song => {
+        const item = document.createElement('div');
+        item.className = 'custom-song-item';
+        
+        const displayNumber = song.numero ? ` - Nº ${song.numero}` : '';
+        
+        item.innerHTML = `
+            <div class="custom-song-header">
+                <span class="custom-song-title">${song.titulo}${displayNumber}</span>
+                <div class="custom-song-actions">
+                    <button class="btn btn-primary btn-small edit-custom-btn">Editar</button>
+                    <button class="btn btn-danger btn-small delete-custom-btn">Excluir</button>
+                </div>
+            </div>
+            <div class="custom-song-info">
+                📚 ${song.origem}
+                ${song.letra ? ' • 📝 Com letra' : ''}
+            </div>
+        `;
+
+        item.querySelector('.edit-custom-btn').addEventListener('click', () => editCustomSong(song));
+        item.querySelector('.delete-custom-btn').addEventListener('click', () => deleteCustomSong(song.id, song.titulo));
+
+        customSongsContainer.appendChild(item);
+    });
+}
+
+function editCustomSong(song) {
+    editingSongId = song.id;
+    editSongTitle.value = song.titulo;
+    editSongNumber.value = song.numero || '';
+    editSongLyrics.value = song.letra || '';
+    editSongModal.classList.add('show');
+}
+
+function saveEditedSong() {
+    if (!editingSongId) return;
+
+    const title = editSongTitle.value.trim();
+    if (!title) {
+        showToast('Digite o título', 'warning');
+        return;
+    }
+
+    const updateData = {
+        titulo: title,
+        numero: editSongNumber.value.trim(),
+        letra: editSongLyrics.value.trim()
+    };
+
+    const songRef = window.firebaseDb.ref(window.firebaseDb.database, `customSongs/${editingSongId}`);
+    
+    window.firebaseDb.update(songRef, updateData)
+        .then(() => {
+            showToast('Louvor atualizado!', 'success');
+            editSongModal.classList.remove('show');
+            editingSongId = null;
+            loadCustomSongs();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showToast('Erro ao atualizar', 'error');
+        });
+}
+
+function deleteCustomSong(songId, songTitle) {
+    if (!confirm(`Excluir "${songTitle}"?`)) return;
+
+    const songRef = window.firebaseDb.ref(window.firebaseDb.database, `customSongs/${songId}`);
+    
+    window.firebaseDb.remove(songRef)
+        .then(() => {
+            showToast('Louvor excluído', 'info');
+            loadCustomSongs();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showToast('Erro ao excluir', 'error');
+        });
+}
+
 // --- Exportação ---
 function generateImage() {
     if (selectedSongs.length === 0) {
-        showToast("Adicione louvores antes de gerar imagem", "warning");
+        showToast("Adicione louvores", "warning");
         return;
     }
 
@@ -706,7 +827,7 @@ function generateImage() {
 
 function downloadImage() {
     const link = document.createElement('a');
-    const filename = `lista-louvores-${currentChurch.replace(/\s+/g, '-')}-${listDate.value}.png`;
+    const filename = `lista-${currentChurch.replace(/\s+/g, '-')}-${listDate.value}.png`;
     link.download = filename;
     link.href = listCanvas.toDataURL('image/png');
     link.click();
@@ -723,18 +844,17 @@ function shareImageOnWhatsApp() {
                 title: 'Lista de Louvores',
                 text: `Lista de ${currentChurch}`
             }).catch(err => {
-                console.log('Erro ao compartilhar:', err);
                 showToast('Erro ao compartilhar', 'error');
             });
         } else {
-            showToast('Compartilhamento não disponível. Use "Baixar"', 'warning');
+            showToast('Use "Baixar"', 'warning');
         }
     });
 }
 
 function sendViaWhatsApp() {
     if (selectedSongs.length === 0) {
-        showToast("Adicione louvores à lista", "warning");
+        showToast("Adicione louvores", "warning");
         return;
     }
 
@@ -752,24 +872,18 @@ function sendViaWhatsApp() {
     });
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    window.location.href = whatsappUrl;
+    window.location.href = `https://wa.me/?text=${encodedMessage}`;
 }
 
 // --- Firebase ---
 function saveList() {
-    if (!window.firebaseDb || !dbRefLists) {
-        showToast("Erro de conexão com Firebase", "error");
-        return;
-    }
-
-    if (!currentChurch) {
-        showToast("Erro: igreja não selecionada", "error");
+    if (!window.firebaseDb || !dbRefLists || !currentChurch) {
+        showToast("Erro de conexão", "error");
         return;
     }
 
     if (selectedSongs.length === 0) {
-        showToast("Adicione louvores à lista", "warning");
+        showToast("Adicione louvores", "warning");
         return;
     }
 
@@ -784,12 +898,12 @@ function saveList() {
 
     window.firebaseDb.set(newListRef, newListData)
         .then(() => {
-            showToast('Lista salva com sucesso!', 'success');
+            showToast('Lista salva!', 'success');
             loadChurchData();
         })
-        .catch((error) => {
-            console.error("Erro ao salvar:", error);
-            showToast('Erro ao salvar lista', 'error');
+        .catch(error => {
+            console.error("Erro:", error);
+            showToast('Erro ao salvar', 'error');
         });
 }
 
@@ -797,80 +911,62 @@ function updateSavedListsDisplay() {
     savedListsContainer.innerHTML = '';
 
     if (churchLists.length === 0) {
-        savedListsContainer.innerHTML = '<div class="empty-message">Nenhuma lista salva ainda</div>';
+        savedListsContainer.innerHTML = '<div class="empty-message">Nenhuma lista salva</div>';
         return;
     }
 
     churchLists.forEach(list => {
-        renderSavedListItem(list);
+        const item = document.createElement('div');
+        item.className = 'saved-list-item';
+        
+        const formattedDate = formatDateForDisplay(list.date);
+        const savedDate = list.createdAt ? new Date(list.createdAt).toLocaleDateString('pt-BR') : '';
+
+        item.innerHTML = `
+            <div class="saved-list-name">Lista de ${formattedDate}</div>
+            <div class="saved-list-info">
+                🎵 ${list.songs.length} louvores<br>
+                <small>💾 Salvo: ${savedDate}</small>
+            </div>
+            <div class="saved-list-actions">
+                <button class="btn btn-primary btn-small load-btn">Carregar</button>
+                <button class="btn btn-danger btn-small delete-btn">Excluir</button>
+            </div>
+        `;
+
+        item.querySelector('.load-btn').addEventListener('click', () => loadList(list));
+        item.querySelector('.delete-btn').addEventListener('click', () => deleteList(list.id));
+
+        savedListsContainer.appendChild(item);
     });
 }
 
-function renderSavedListItem(list) {
-    const item = document.createElement('div');
-    item.className = 'saved-list-item';
-    
-    const formattedListDate = formatDateForDisplay(list.date);
-    const createdAtDate = list.createdAt ? new Date(list.createdAt) : null;
-    const savedDateStr = createdAtDate ? createdAtDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data indisponível';
-
-    item.innerHTML = `
-        <div class="saved-list-name">Lista de ${formattedListDate}</div>
-        <div class="saved-list-info">
-            🎵 ${list.songs.length} ${list.songs.length === 1 ? 'louvor' : 'louvores'}<br>
-            <small>💾 Salvo em: ${savedDateStr}</small>
-        </div>
-        <div class="saved-list-actions">
-            <button class="btn btn-primary btn-small load-list-btn">Carregar</button>
-            <button class="btn btn-danger btn-small delete-list-btn">Excluir</button>
-        </div>
-    `;
-
-    item.querySelector('.load-list-btn').addEventListener('click', () => loadList(list));
-    item.querySelector('.delete-list-btn').addEventListener('click', () => deleteList(list.id));
-
-    savedListsContainer.appendChild(item);
-}
-
 function loadList(listData) {
-    if (listData && Array.isArray(listData.songs) && listData.date) {
-        if (selectedSongs.length > 0) {
-            if (!confirm('Carregar esta lista substituirá a lista atual. Continuar?')) {
-                return;
-            }
-        }
-        
-        selectedSongs = JSON.parse(JSON.stringify(listData.songs));
-        listDate.value = listData.date;
-        updateSelectedList();
-        showToast('Lista carregada', 'success');
-        
-        document.querySelector('.menu-item[data-section="searchSection"]').click();
-    } else {
-        showToast("Erro ao carregar lista", "error");
+    if (selectedSongs.length > 0) {
+        if (!confirm('Carregar lista substituirá a atual. Continuar?')) return;
     }
+    
+    selectedSongs = JSON.parse(JSON.stringify(listData.songs));
+    listDate.value = listData.date;
+    updateSelectedList();
+    showToast('Lista carregada', 'success');
+    
+    document.querySelector('.menu-item[data-section="searchSection"]').click();
 }
 
 function deleteList(listId) {
-    if (!window.firebaseDb || !dbRefLists) {
-        showToast("Erro de conexão", "error");
-        return;
-    }
+    if (!confirm('Excluir lista?')) return;
 
-    if (!confirm('Excluir esta lista permanentemente?')) {
-        return;
-    }
+    const listRef = window.firebaseDb.ref(window.firebaseDb.database, `lists/${listId}`);
 
-    const listToDeleteRef = window.firebaseDb.ref(window.firebaseDb.database, `lists/${listId}`);
-
-    window.firebaseDb.remove(listToDeleteRef)
+    window.firebaseDb.remove(listRef)
         .then(() => {
             showToast('Lista excluída', 'info');
             loadChurchData();
         })
-        .catch((error) => {
-            console.error("Erro ao excluir:", error);
-            showToast('Erro ao excluir lista', 'error');
+        .catch(error => {
+            console.error("Erro:", error);
+            showToast('Erro ao excluir', 'error');
         });
 }
 
@@ -879,20 +975,16 @@ function generateReport() {
     reportContent.innerHTML = '';
 
     if (churchLists.length === 0) {
-        reportContent.innerHTML = '<div class="empty-message">Nenhuma lista salva ainda para gerar relatórios</div>';
+        reportContent.innerHTML = '<div class="empty-message">Nenhuma lista para relatórios</div>';
         return;
     }
 
-    // Contar hinos
     const songCount = {};
     churchLists.forEach(list => {
         list.songs.forEach(song => {
             const key = `${song.origem}-${song.numero || song.titulo}`;
             if (!songCount[key]) {
-                songCount[key] = {
-                    song: song,
-                    count: 0
-                };
+                songCount[key] = { song: song, count: 0 };
             }
             songCount[key].count++;
         });
@@ -901,13 +993,12 @@ function generateReport() {
     const sortedSongs = Object.values(songCount).sort((a, b) => b.count - a.count);
     const top10 = sortedSongs.slice(0, 10);
 
-    // Card Top 10
     const reportCard = document.createElement('div');
     reportCard.className = 'report-card';
     reportCard.innerHTML = '<h3>🏆 Top 10 Mais Cantados</h3>';
 
     if (top10.length === 0) {
-        reportCard.innerHTML += '<div class="empty-message">Nenhum hino encontrado</div>';
+        reportCard.innerHTML += '<div class="empty-message">Nenhum hino</div>';
     } else {
         const reportList = document.createElement('ul');
         reportList.className = 'report-list';
@@ -934,15 +1025,14 @@ function generateReport() {
 
     reportContent.appendChild(reportCard);
 
-    // Card Estatísticas
     const statsCard = document.createElement('div');
     statsCard.className = 'report-card';
     statsCard.innerHTML = `
-        <h3>📊 Estatísticas Gerais</h3>
+        <h3>📊 Estatísticas</h3>
         <div style="padding: 10px;">
-            <p style="margin-bottom: 8px;"><strong>Total de listas:</strong> ${churchLists.length}</p>
+            <p style="margin-bottom: 8px;"><strong>Listas:</strong> ${churchLists.length}</p>
             <p style="margin-bottom: 8px;"><strong>Hinos diferentes:</strong> ${Object.keys(songCount).length}</p>
-            <p><strong>Total de louvores cantados:</strong> ${churchLists.reduce((sum, list) => sum + list.songs.length, 0)}</p>
+            <p><strong>Total cantados:</strong> ${churchLists.reduce((sum, list) => sum + list.songs.length, 0)}</p>
         </div>
     `;
 
@@ -951,16 +1041,14 @@ function generateReport() {
 
 // --- Auxiliares ---
 function formatDateForDisplay(dateStr) {
-    if (!dateStr) return 'Data não definida';
+    if (!dateStr) return '';
     const [year, month, day] = dateStr.split('-');
     return `${day}/${month}/${year}`;
 }
 
 function showToast(message, type = 'success') {
     const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
+    if (existingToast) existingToast.remove();
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -971,9 +1059,7 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
+            if (toast.parentNode) toast.remove();
         }, 500);
     }, 3000);
 }
