@@ -5,30 +5,32 @@
 }
 
 :root {
-    --primary-color: #2196F3;
-    --primary-dark: #1976D2;
-    --success-color: #4CAF50;
-    --success-dark: #388E3C;
-    --danger-color: #f44336;
-    --danger-dark: #d32f2f;
-    --warning-color: #FF9800;
-    --text-dark: #333;
-    --text-medium: #666;
-    --text-light: #999;
-    --bg-light: #f5f7fa;
-    --bg-white: #ffffff;
-    --border-color: #e0e0e0;
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --primary-color: #2196F3; /* Azul primário */
+    --primary-dark: #1976D2;  /* Azul mais escuro */
+    --success-color: #4CAF50; /* Verde sucesso */
+    --success-dark: #388E3C;  /* Verde mais escuro */
+    --danger-color: #f44336;  /* Vermelho perigo */
+    --danger-dark: #d32f2f;   /* Vermelho mais escuro */
+    --warning-color: #FF9800; /* Laranja aviso */
+    --text-dark: #333;        /* Texto escuro */
+    --text-medium: #666;      /* Texto médio */
+    --text-light: #999;       /* Texto claro */
+    --bg-light: #f5f7fa;      /* Fundo claro (quase branco) */
+    --bg-white: #ffffff;      /* Fundo branco */
+    --border-color: #e0e0e0;   /* Cor da borda */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra pequena */
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Sombra média */
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12); /* Sombra grande */
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Gradiente suave de fundo */
+    background: linear-gradient(135deg, #e0f2f7 0%, #d1c4e9 100%);
     min-height: 100vh;
     padding: 20px;
     line-height: 1.6;
+    color: var(--text-dark); /* Cor de texto padrão */
 }
 
 .container {
@@ -47,7 +49,7 @@ body {
 }
 
 .app-header h1 {
-    color: var(--text-dark);
+    color: var(--primary-dark); /* Cor do título */
     font-size: 2.5rem;
     margin-bottom: 10px;
     font-weight: 700;
@@ -68,13 +70,15 @@ body {
 }
 
 .section-title {
-    color: var(--text-dark);
+    color: var(--primary-dark);
     font-size: 1.5rem;
     margin-bottom: 20px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 10px;
+    border-bottom: 2px solid var(--primary-color); /* Linha abaixo do título */
+    padding-bottom: 8px;
 }
 
 /* Search Section */
@@ -85,51 +89,57 @@ body {
 .source-selector {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px; /* Reduzido o gap */
     margin-bottom: 20px;
-    padding: 15px;
+    padding: 10px; /* Reduzido o padding */
     background: var(--bg-light);
     border-radius: 8px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite quebra de linha em telas menores */
 }
 
 .source-label {
     font-weight: 600;
     color: var(--text-dark);
+    margin-right: 5px; /* Espaço após o label */
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px; /* Reduzido o gap */
     cursor: pointer;
-    padding: 8px 15px;
+    padding: 6px 12px; /* Reduzido o padding */
     border-radius: 20px;
     transition: all 0.3s ease;
     background: var(--bg-white);
-    border: 2px solid transparent;
+    border: 1px solid var(--border-color); /* Borda sutil */
+    user-select: none; /* Impede seleção de texto */
 }
 
 .radio-option:hover {
-    background: #e3f2fd;
+    background: #e3f2fd; /* Azul bem claro no hover */
     border-color: var(--primary-color);
 }
 
 .radio-option input[type="radio"] {
     cursor: pointer;
-    width: 18px;
-    height: 18px;
+    width: 16px; /* Tamanho menor */
+    height: 16px;
+    accent-color: var(--primary-color); /* Cor do radio selecionado */
+}
+/* Estilo quando selecionado */
+.radio-option input[type="radio"]:checked {
+    border-color: var(--primary-dark);
 }
 
 .radio-option input[type="radio"]:checked + span {
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-dark); /* Cor mais escura quando selecionado */
 }
 
 .radio-option span {
     color: var(--text-dark);
-    user-select: none;
-    font-size: 0.95rem;
+    font-size: 0.9rem; /* Tamanho menor */
 }
 
 .search-input-wrapper {
@@ -143,14 +153,15 @@ body {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.2rem;
+    color: var(--text-light); /* Ícone mais claro */
     pointer-events: none;
 }
 
 #searchInput {
     width: 100%;
-    padding: 15px 45px 15px 15px;
-    font-size: 16px;
-    border: 2px solid var(--border-color);
+    padding: 12px 40px 12px 15px; /* Ajuste padding */
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
     transition: all 0.3s ease;
@@ -159,29 +170,36 @@ body {
 
 #searchInput:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2); /* Sombra de foco mais visível */
 }
 
 #searchResults {
-    max-height: 400px;
+    max-height: 300px; /* Reduzido altura máxima */
     overflow-y: auto;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background: var(--bg-white);
+    margin-top: -1px; /* Encosta no input */
+    display: none; /* Começa escondido */
+    position: absolute; /* Para sobrepor conteúdo abaixo */
+    width: 100%;     /* Ocupa largura total */
+    z-index: 10;     /* Fica sobre outros elementos */
+    box-shadow: var(--shadow-md); /* Sombra para destacar */
 }
 
-#searchResults:empty {
-    display: none;
+#searchResults:not(:empty) { /* Mostra apenas se não estiver vazio */
+    display: block;
 }
+
 
 .search-result-item {
-    padding: 15px;
+    padding: 12px 15px; /* Padding ajustado */
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease; /* Transição mais rápida */
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Gap ajustado */
 }
 
 .search-result-item:last-child {
@@ -190,28 +208,31 @@ body {
 
 .search-result-item:hover {
     background: #e3f2fd;
-    padding-left: 20px;
 }
 
 .search-result-item .song-number {
-    font-weight: 700;
-    color: var(--primary-color);
-    min-width: 50px;
-    font-size: 1.1rem;
+    font-weight: 600; /* Menos negrito */
+    color: var(--primary-dark);
+    min-width: 55px; /* Reduzido */
+    font-size: 1rem; /* Reduzido */
+    text-align: right; /* Alinha números à direita */
+    padding-right: 5px;
 }
 
 .search-result-item .song-origin {
-    font-size: 0.85rem;
-    color: var(--text-light);
+    font-size: 0.8rem; /* Menor */
+    color: var(--text-medium);
     font-style: italic;
-    background: var(--bg-light);
-    padding: 2px 8px;
+    background: #eceff1; /* Fundo diferente */
+    padding: 2px 6px;
     border-radius: 4px;
+    white-space: nowrap; /* Evita quebra de linha */
 }
 
 .search-result-item .song-title {
-    flex: 1;
+    flex-grow: 1; /* Ocupa espaço restante */
     color: var(--text-dark);
+    font-size: 0.95rem; /* Levemente menor */
 }
 
 /* List Section */
@@ -220,7 +241,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite quebra */
     gap: 15px;
 }
 
@@ -228,30 +249,33 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-grow: 1; /* Ocupa espaço disponível */
 }
 
 .list-header-right {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap; /* Permite quebra */
 }
 
 .song-counter {
     background: var(--primary-color);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    padding: 5px 10px; /* Reduzido */
+    border-radius: 16px; /* Mais arredondado */
+    font-size: 0.85rem; /* Menor */
     font-weight: 600;
+    white-space: nowrap; /* Evita quebra */
 }
 
 .date-input {
     padding: 8px 12px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color); /* Borda mais sutil */
     border-radius: 6px;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease;
 }
 
 .date-input:focus {
@@ -262,119 +286,159 @@ body {
 #songList {
     list-style: none;
     min-height: 100px;
+    padding-left: 0; /* Remove padding padrão da UL */
 }
 
 #songList li {
-    padding: 15px;
-    margin-bottom: 10px;
-    background: var(--bg-light);
-    border: 2px solid var(--border-color);
+    padding: 12px 15px; /* Padding ajustado */
+    margin-bottom: 8px; /* Espaço menor entre itens */
+    background: #fafafa; /* Fundo muito levemente cinza */
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.3s ease;
-    cursor: move;
+    transition: all 0.2s ease-out; /* Transição mais suave */
+    cursor: grab; /* Indica que é arrastável */
 }
+#songList li:active {
+    cursor: grabbing; /* Cursor ao arrastar */
+}
+
 
 #songList li:hover {
     border-color: var(--primary-color);
     box-shadow: var(--shadow-sm);
-    transform: translateY(-2px);
+    /* Remove o transform para evitar 'pulo' */
 }
 
-#songList li.dragging {
-    opacity: 0.5;
-}
 
 #songList li .song-info {
-    flex: 1;
+    flex-grow: 1; /* Ocupa espaço */
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px; /* Gap ajustado */
+    margin-right: 10px; /* Espaço antes das ações */
 }
 
 #songList li .song-number {
-    font-weight: 700;
-    color: var(--primary-color);
-    min-width: 60px;
-    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    min-width: 55px; /* Mesmo tamanho da busca */
+    font-size: 1rem;
+    text-align: right;
+    padding-right: 5px;
 }
+/* Estilo para quando não há número (Avulsos) */
+#songList li .song-number.no-number {
+    min-width: 55px; /* Mantém o espaço para alinhamento */
+}
+
 
 #songList li .song-title {
     color: var(--text-dark);
+    font-size: 0.95rem;
 }
+
+/* Estilo para origem na lista principal */
+#songList li .song-origin-list {
+    font-size: 0.8em;
+    color: var(--text-light);
+    margin-left: 5px;
+    font-style: italic;
+    white-space: nowrap;
+}
+
 
 .list-actions {
     display: flex;
-    gap: 8px;
+    gap: 5px; /* Espaço menor */
 }
 
-/* Buttons */
+/* Botão Remover na Lista */
+.remove-btn {
+    background: none;
+    border: none;
+    color: var(--danger-color); /* Cor vermelha */
+    font-size: 1.4rem; /* Tamanho do 'X' ou ícone */
+    line-height: 1; /* Ajusta altura da linha */
+    padding: 0 5px; /* Espaçamento pequeno */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.remove-btn:hover {
+    color: var(--danger-dark); /* Cor mais escura no hover */
+    /* Remove efeitos de botão padrão no hover */
+    background: none;
+    box-shadow: none;
+    transform: none;
+}
+
+
+/* Feedback visual para Drag and Drop */
+#songList li.dragging {
+    opacity: 0.4;        /* Fica semitransparente ao arrastar */
+    border-style: dashed; /* Borda tracejada */
+}
+#songList li.drag-over {
+    background-color: #e3f2fd; /* Fundo azul claro ao passar por cima */
+    border-color: var(--primary-dark); /* Borda mais escura para destacar */
+}
+
+
+/* Botões Gerais */
 .btn {
-    padding: 10px 20px;
+    padding: 10px 18px; /* Padding ajustado */
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-out; /* Transição mais rápida */
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px; /* Aumentado gap para ícones */
+    justify-content: center; /* Centraliza conteúdo */
+    text-align: center; /* Garante centralização do texto */
+    white-space: nowrap; /* Evita quebra de linha no botão */
 }
-
+/* Efeito suave no hover */
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-1px); /* Leve levantada */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Sombra mais sutil */
 }
-
 .btn:active {
-    transform: translateY(0);
+    transform: translateY(0px); /* Volta ao normal no clique */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+/* Desabilitado */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
+
+.btn-primary { background: var(--primary-color); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+.btn-success { background: var(--success-color); color: white; }
+.btn-success:hover:not(:disabled) { background: var(--success-dark); }
+
+.btn-secondary { background: var(--text-medium); color: white; } /* Cor secundária ajustada */
+.btn-secondary:hover:not(:disabled) { background: var(--text-dark); }
+
+.btn-danger { background: var(--danger-color); color: white; }
+.btn-danger:hover:not(:disabled) { background: var(--danger-dark); }
+
+.btn-small { padding: 6px 12px; font-size: 0.85rem; gap: 4px; } /* Ajuste gap */
+
+/* Ícones dentro dos botões */
+.btn svg {
+    vertical-align: middle; /* Alinha ícone com texto */
 }
 
-.btn-primary:hover {
-    background: var(--primary-dark);
-}
-
-.btn-success {
-    background: var(--success-color);
-    color: white;
-}
-
-.btn-success:hover {
-    background: var(--success-dark);
-}
-
-.btn-secondary {
-    background: var(--text-light);
-    color: white;
-}
-
-.btn-secondary:hover {
-    background: var(--text-medium);
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    color: white;
-    padding: 8px 15px;
-    font-size: 0.9rem;
-}
-
-.btn-danger:hover {
-    background: var(--danger-dark);
-}
-
-.btn-small {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-}
 
 /* Export Section */
 .export-section {
@@ -382,12 +446,12 @@ body {
     padding: 20px;
     background: var(--bg-light);
     border-radius: 8px;
-    border: 2px dashed var(--border-color);
+    border: 1px solid var(--border-color); /* Borda sólida */
 }
 
 .export-title {
     font-size: 1.2rem;
-    color: var(--text-dark);
+    color: var(--primary-dark);
     margin-bottom: 15px;
     font-weight: 600;
 }
@@ -399,174 +463,229 @@ body {
 .export-type {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap; /* Permite quebra */
 }
 
 .export-buttons {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite quebra */
 }
 
 /* Saved Lists Section */
+.saved-lists-section .section-title {
+    color: var(--success-dark); /* Título verde escuro */
+    border-bottom-color: var(--success-color);
+}
 .saved-lists-controls {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap; /* Permite quebra */
 }
 
 .list-name-input {
-    flex: 1;
+    flex-grow: 1; /* Ocupa espaço */
     padding: 10px 15px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.95rem;
+    min-width: 150px; /* Largura mínima */
 }
 
 .list-name-input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--success-color); /* Foco verde */
     outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 #savedListsContainer {
     display: grid;
+    /* Colunas responsivas: mínimo 250px, máximo 1fr */
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 15px;
 }
 
 .saved-list-item {
     padding: 15px;
-    background: var(--bg-light);
-    border: 2px solid var(--border-color);
+    background: #f1f8e9; /* Fundo verde bem claro */
+    border: 1px solid #c8e6c9; /* Borda verde clara */
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-out;
+    display: flex; /* Flex para alinhar ações */
+    flex-direction: column; /* Conteúdo em coluna */
 }
 
 .saved-list-item:hover {
-    border-color: var(--primary-color);
+    border-color: var(--success-dark);
     box-shadow: var(--shadow-sm);
 }
 
 .saved-list-name {
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--success-dark);
     margin-bottom: 8px;
     font-size: 1.05rem;
+    word-break: break-word; /* Quebra nomes longos */
 }
 
 .saved-list-info {
     font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 10px;
+    color: var(--text-medium); /* Cor ajustada */
+    margin-bottom: 12px; /* Mais espaço antes dos botões */
+    flex-grow: 1; /* Empurra ações para baixo */
 }
+.saved-list-info span, .saved-list-info small {
+    display: block; /* Cada informação em uma linha */
+    line-height: 1.4;
+}
+.saved-list-info small {
+    color: var(--text-light); /* Data de salvamento mais clara */
+    margin-top: 4px;
+}
+
 
 .saved-list-actions {
     display: flex;
     gap: 8px;
+    margin-top: auto; /* Mantém ações na base */
 }
 
 /* Modal */
 .modal {
-    display: none;
+    display: none; /* Escondido por padrão */
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
+    backdrop-filter: blur(4px); /* Efeito de desfoque */
+    overflow: auto; /* Permite scroll se conteúdo for maior */
 }
 
 .modal.show {
-    display: flex;
+    display: flex; /* Mostra como flex para centralizar */
     align-items: center;
     justify-content: center;
+    animation: fadeIn 0.3s ease-out; /* Animação de entrada */
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 
 .modal-content {
     background: var(--bg-white);
-    padding: 30px;
-    border-radius: 12px;
+    padding: 25px 30px; /* Padding ajustado */
+    border-radius: 10px; /* Borda menos arredondada */
     max-width: 90%;
-    max-height: 90%;
-    overflow-y: auto;
+    width: auto; /* Largura automática baseada no conteúdo */
+    max-height: 90vh; /* Altura máxima baseada na viewport */
+    overflow-y: auto; /* Scroll vertical se necessário */
     box-shadow: var(--shadow-lg);
     position: relative;
+    animation: slideUp 0.3s ease-out; /* Animação de entrada */
 }
 
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* Tamanho específico para modal de letras */
 .lyrics-modal-content {
     max-width: 600px;
+    width: 90%; /* Ajuste para mobile */
 }
 
 .modal-close {
     position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 2rem;
+    right: 15px; /* Mais perto da borda */
+    top: 15px;
+    font-size: 1.8rem; /* Tamanho ajustado */
+    font-weight: bold;
     cursor: pointer;
     color: var(--text-light);
-    transition: color 0.3s;
+    transition: color 0.2s;
+    line-height: 1;
 }
 
 .modal-close:hover {
-    color: var(--text-dark);
+    color: var(--danger-color); /* Vermelho no hover */
 }
 
 .modal h3 {
     margin-bottom: 20px;
-    color: var(--text-dark);
+    color: var(--primary-dark);
     font-size: 1.5rem;
+    text-align: center;
 }
 
+/* Canvas no modal de imagem */
 #listCanvas {
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    margin: 20px 0;
+    border: 1px solid var(--border-color); /* Borda sutil */
+    border-radius: 6px;
+    margin: 20px auto; /* Centraliza horizontalmente */
+    display: block; /* Para margin auto funcionar */
     max-width: 100%;
-    height: auto;
+    height: auto; /* Mantém proporção */
+    background-color: #f9f9f9; /* Fundo leve para contraste */
 }
 
 .modal-buttons {
     display: flex;
-    gap: 10px;
+    gap: 15px; /* Mais espaço */
     justify-content: center;
+    margin-top: 25px; /* Espaço acima dos botões */
     flex-wrap: wrap;
 }
 
+/* Modal de Letras */
 .lyrics-instructions {
     color: var(--text-medium);
     margin-bottom: 20px;
     font-size: 0.95rem;
+    text-align: center;
 }
 
 #lyricsListContainer {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 60vh; /* Limita altura */
+    overflow-y: auto; /* Scroll se necessário */
+    padding-right: 5px; /* Espaço para scrollbar */
 }
 
 .lyrics-item {
-    padding: 15px;
+    padding: 12px 15px;
     background: var(--bg-light);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .lyrics-item:hover {
     border-color: var(--success-color);
-    background: #e8f5e9;
+    background: #e8f5e9; /* Verde claro no hover */
+    transform: translateX(3px); /* Leve deslocamento */
 }
 
 .lyrics-item-header {
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 5px;
+    font-size: 1rem;
 }
 
 .lyrics-item-hint {
-    font-size: 0.85rem;
+    font-size: 0.8rem; /* Menor */
     color: var(--text-light);
 }
 
@@ -574,87 +693,117 @@ body {
 .empty-message {
     text-align: center;
     color: var(--text-light);
-    padding: 40px 20px;
+    padding: 30px 20px; /* Padding ajustado */
     font-style: italic;
+    font-size: 0.95rem;
 }
 
-/* Error Message */
-.error-message {
-    background: #ffebee;
-    color: var(--danger-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid var(--danger-color);
-}
-
-/* Success Toast */
+/* --- Estilos do Toast (adicionados/movidos para cá) --- */
 .toast {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: var(--success-color);
+    bottom: 25px;       /* Posição vertical */
+    left: 50%;          /* Centraliza horizontalmente */
+    transform: translateX(-50%); /* Ajuste fino para centralização */
     color: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-lg);
-    z-index: 2000;
-    animation: slideIn 0.3s ease;
+    padding: 12px 25px; /* Padding ajustado */
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 2000;      /* Fica sobre tudo */
+    font-size: 0.95rem;
+    opacity: 0;        /* Começa invisível */
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Transição suave */
+    text-align: center;
+    min-width: 250px;
+    max-width: 90%;
+    /* Animação de entrada */
+    animation: toastIn 0.4s ease-out forwards;
 }
 
-@keyframes slideIn {
+@keyframes toastIn {
     from {
-        transform: translateX(400px);
         opacity: 0;
+        transform: translate(-50%, 20px); /* Começa um pouco abaixo */
     }
     to {
-        transform: translateX(0);
         opacity: 1;
+        transform: translate(-50%, 0);
     }
 }
 
-/* Responsive */
+
+/* Cores do Toast */
+.toast-success { background-color: var(--success-color); }
+.toast-error   { background-color: var(--danger-color); }
+.toast-warning { background-color: var(--warning-color); }
+.toast-info    { background-color: var(--primary-color); } /* Azul para info */
+
+
+/* Responsividade */
 @media (max-width: 768px) {
     body {
         padding: 10px;
     }
-    
+
     .app-header h1 {
         font-size: 1.8rem;
     }
-    
+
     .card {
-        padding: 15px;
+        padding: 20px; /* Aumentado padding em telas menores */
     }
-    
+
+    /* Ajusta header da lista para empilhar melhor */
     .list-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch; /* Ocupa largura total */
     }
-    
-    .list-header-right {
+    .list-header-left, .list-header-right {
         width: 100%;
-        flex-direction: column;
+        justify-content: space-between; /* Espaça itens internos */
     }
-    
+     .list-header-right {
+        flex-direction: column; /* Empilha data e botão */
+        align-items: stretch; /* Ocupa largura */
+    }
     .date-input,
     #clearListBtn {
-        width: 100%;
+        width: 100%; /* Largura total */
     }
-    
+
+
+    /* Botões de exportação em coluna */
     .export-buttons {
         flex-direction: column;
+        align-items: stretch; /* Ocupa largura */
     }
-    
     .export-buttons .btn {
-        width: 100%;
+        width: 100%; /* Largura total */
     }
-    
+
     .saved-lists-controls {
         flex-direction: column;
+        align-items: stretch;
     }
-    
+
     #savedListsContainer {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Uma coluna */
     }
+
+    /* Modal com mais largura em telas pequenas */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        padding: 20px;
+    }
+    .modal h3 {
+        font-size: 1.3rem;
+    }
+}
+
+
+/* Estilo adicional para inputs desabilitados */
+input:disabled, button:disabled {
+    background-color: #eeeeee;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
