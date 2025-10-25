@@ -436,8 +436,13 @@ function checkRecentSong(songData) {
             if (hasSong) {
                 const daysAgo = Math.floor((currentDate - listDateObj) / (1000 * 60 * 60 * 24));
                 const formattedDate = formatDateForDisplay(list.date);
-                const message = `Este hino foi cantado há ${daysAgo} ${daysAgo === 1 ? 'dia' : 'dias'} (${formattedDate}).\n\nAdicionar mesmo assim?`;
-                return confirm(message);
+                
+                // Toast informativo ao invés de confirm
+                const dayText = daysAgo === 0 ? 'hoje' : daysAgo === 1 ? 'ontem' : `há ${daysAgo} dias`;
+                showToast(`ℹ️ Este louvor foi cantado ${dayText} (${formattedDate})`, 'info', 5000);
+                
+                // Ainda adiciona, mas informa ao usuário
+                return true;
             }
         }
     }
@@ -470,6 +475,12 @@ function updateSelectedList() {
     const count = selectedSongs.length;
     songCounter.textContent = `${count} ${count === 1 ? 'louvor' : 'louvores'}`;
 
+    // Remove botão anterior se existir
+    const existingReorderBtn = document.getElementById('reorderBtn');
+    if (existingReorderBtn) {
+        existingReorderBtn.remove();
+    }
+
     if (count === 0) {
         songList.innerHTML = '<div class="empty-message">Busque e adicione louvores</div>';
         exportSection.style.display = 'none';
@@ -481,6 +492,7 @@ function updateSelectedList() {
     // Botão de reordenar se houver mais de 1
     if (count > 1) {
         const reorderBtn = document.createElement('button');
+        reorderBtn.id = 'reorderBtn';
         reorderBtn.className = 'btn btn-secondary';
         reorderBtn.style.marginBottom = '10px';
         reorderBtn.innerHTML = '🔄 Reordenar Lista';
@@ -862,13 +874,18 @@ function sendViaWhatsApp() {
     let message = `*LISTA DE LOUVORES*\n🏛️ ${currentChurch}\n📅 ${dateStr}\n\n`;
 
     selectedSongs.forEach((song) => {
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+        let prefix = '';
         
-        if (displayNumber) {
-            message += `${displayNumber} - ${song.titulo}\n`;
+        if (song.origem === 'Avulsos' && !song.numero) {
+            prefix = '*Avulso*';
+        } else if (song.numero) {
+            const displayNumber = song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero;
+            prefix = `*${displayNumber}*`;
         } else {
-            message += `${song.titulo}\n`;
+            prefix = '*—*';
         }
+        
+        message += `${prefix} - ${song.titulo}\n`;
     });
 
     const encodedMessage = encodeURIComponent(message);
@@ -979,33 +996,51 @@ function generateReport() {
         return;
     }
 
-    const songCount = {};
+    // Separar contagem por origem
+    const songCountByOrigin = {
+        'Igreja': {},
+        'CIAS': {},
+        'Avulsos': {}
+    };
+
     churchLists.forEach(list => {
         list.songs.forEach(song => {
+            const origin = song.origem;
             const key = `${song.origem}-${song.numero || song.titulo}`;
-            if (!songCount[key]) {
-                songCount[key] = { song: song, count: 0 };
+            
+            if (!songCountByOrigin[origin][key]) {
+                songCountByOrigin[origin][key] = { song: song, count: 0 };
             }
-            songCount[key].count++;
+            songCountByOrigin[origin][key].count++;
         });
     });
 
-    const sortedSongs = Object.values(songCount).sort((a, b) => b.count - a.count);
-    const top10 = sortedSongs.slice(0, 10);
+    // Criar Top 5 para cada categoria
+    const categories = [
+        { name: 'Igreja', icon: '⛪', color: '#2196F3' },
+        { name: 'CIAS', icon: '👶', color: '#FF9800' },
+        { name: 'Avulsos', icon: '📝', color: '#4CAF50' }
+    ];
 
-    const reportCard = document.createElement('div');
-    reportCard.className = 'report-card';
-    reportCard.innerHTML = '<h3>🏆 Top 10 Mais Cantados</h3>';
+    categories.forEach(category => {
+        const songs = Object.values(songCountByOrigin[category.name]);
+        
+        if (songs.length === 0) return; // Pula se não houver músicas desta categoria
+        
+        const sortedSongs = songs.sort((a, b) => b.count - a.count);
+        const top5 = sortedSongs.slice(0, 5);
 
-    if (top10.length === 0) {
-        reportCard.innerHTML += '<div class="empty-message">Nenhum hino</div>';
-    } else {
+        const reportCard = document.createElement('div');
+        reportCard.className = 'report-card';
+        reportCard.innerHTML = `<h3 style="color: ${category.color}">${category.icon} Top 5 ${category.name}</h3>`;
+
         const reportList = document.createElement('ul');
         reportList.className = 'report-list';
 
-        top10.forEach((item, index) => {
+        top5.forEach((item, index) => {
             const song = item.song;
-            const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+            const displayNumber = song.numero ? 
+                (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
 
             const reportItem = document.createElement('li');
             reportItem.className = 'report-item';
@@ -1015,23 +1050,30 @@ function generateReport() {
                     ${displayNumber ? `<span class="report-song-number">${displayNumber}</span>` : ''}
                     <span class="report-song-title">${song.titulo}</span>
                 </div>
-                <span class="report-count">${item.count}x</span>
+                <span class="report-count" style="background: ${category.color}">${item.count}x</span>
             `;
             reportList.appendChild(reportItem);
         });
 
         reportCard.appendChild(reportList);
-    }
+        reportContent.appendChild(reportCard);
+    });
 
-    reportContent.appendChild(reportCard);
+    // Card Estatísticas Gerais
+    const totalSongs = Object.values(songCountByOrigin).reduce((sum, origin) => 
+        sum + Object.keys(origin).length, 0
+    );
 
     const statsCard = document.createElement('div');
     statsCard.className = 'report-card';
     statsCard.innerHTML = `
-        <h3>📊 Estatísticas</h3>
+        <h3>📊 Estatísticas Gerais</h3>
         <div style="padding: 10px;">
-            <p style="margin-bottom: 8px;"><strong>Listas:</strong> ${churchLists.length}</p>
-            <p style="margin-bottom: 8px;"><strong>Hinos diferentes:</strong> ${Object.keys(songCount).length}</p>
+            <p style="margin-bottom: 8px;"><strong>Total de listas:</strong> ${churchLists.length}</p>
+            <p style="margin-bottom: 8px;"><strong>Hinos diferentes:</strong> ${totalSongs}</p>
+            <p style="margin-bottom: 8px;"><strong>Igreja:</strong> ${Object.keys(songCountByOrigin['Igreja']).length} hinos</p>
+            <p style="margin-bottom: 8px;"><strong>CIAS:</strong> ${Object.keys(songCountByOrigin['CIAS']).length} hinos</p>
+            <p style="margin-bottom: 8px;"><strong>Avulsos:</strong> ${Object.keys(songCountByOrigin['Avulsos']).length} hinos</p>
             <p><strong>Total cantados:</strong> ${churchLists.reduce((sum, list) => sum + list.songs.length, 0)}</p>
         </div>
     `;
@@ -1046,7 +1088,7 @@ function formatDateForDisplay(dateStr) {
     return `${day}/${month}/${year}`;
 }
 
-function showToast(message, type = 'success') {
+function showToast(message, type = 'success', duration = 3000) {
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
 
@@ -1061,5 +1103,5 @@ function showToast(message, type = 'success') {
         setTimeout(() => {
             if (toast.parentNode) toast.remove();
         }, 500);
-    }, 3000);
+    }, duration);
 }
