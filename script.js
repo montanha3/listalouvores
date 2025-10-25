@@ -1,6 +1,10 @@
 // Estado da aplicação
 let allSongs = [];
 let selectedSongs = [];
+let touchStartY = 0;
+let touchStartX = 0;
+let draggedElement = null;
+let draggedIndex = -1;
 
 // Elementos do DOM
 const searchInput = document.getElementById('searchInput');
@@ -8,54 +12,46 @@ const searchResults = document.getElementById('searchResults');
 const songList = document.getElementById('songList');
 const songCounter = document.getElementById('songCounter');
 const listDate = document.getElementById('listDate');
+const churchNameInput = document.getElementById('churchNameInput');
 const clearListBtn = document.getElementById('clearListBtn');
 const exportSection = document.getElementById('exportSection');
 const exportImageBtn = document.getElementById('exportImageBtn');
 const exportTextBtn = document.getElementById('exportTextBtn');
-const exportLyricsBtn = document.getElementById('exportLyricsBtn');
-const saveLocalBtn = document.getElementById('saveLocalBtn');
 const saveListBtn = document.getElementById('saveListBtn');
-const listNameInput = document.getElementById('listNameInput');
+const filterChurch = document.getElementById('filterChurch');
+const reportChurch = document.getElementById('reportChurch');
 const savedListsContainer = document.getElementById('savedListsContainer');
-
-// Modals
+const reportContent = document.getElementById('reportContent');
 const imageModal = document.getElementById('imageModal');
-const lyricsModal = document.getElementById('lyricsModal');
 const listCanvas = document.getElementById('listCanvas');
 const downloadImageBtn = document.getElementById('downloadImageBtn');
 const shareImageBtn = document.getElementById('shareImageBtn');
-const lyricsListContainer = document.getElementById('lyricsListContainer');
-
-// Drag and drop state
-let draggedElement = null;
+const churchSuggestions = document.getElementById('churchSuggestions');
 
 // Referência Firebase
-let dbRefSavedLists = null;
+let dbRefLists = null;
+let allLists = [];
 
 // --- Inicialização ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializa Firebase
     if (window.firebaseDb && window.firebaseDb.database) {
         try {
-            dbRefSavedLists = window.firebaseDb.ref(window.firebaseDb.database, 'savedLists');
+            dbRefLists = window.firebaseDb.ref(window.firebaseDb.database, 'lists');
             console.log("Firebase inicializado");
         } catch (error) {
             console.error("Erro ao inicializar Firebase:", error);
-            showToast("Erro ao conectar com a base de dados", "error");
+            showToast("Erro ao conectar com Firebase", "error");
         }
     } else {
         console.error("Firebase não encontrado");
         saveListBtn.disabled = true;
-        listNameInput.disabled = true;
-        savedListsContainer.innerHTML = '<div class="empty-message">Erro ao conectar com Firebase</div>';
     }
 
     loadSongs();
     setupEventListeners();
     setTodayDate();
-    loadCurrentList(); // Carrega lista salva localmente se existir
     updateSelectedList();
-    loadSavedLists();
+    loadAllLists();
     setupBottomMenu();
 });
 
@@ -68,15 +64,12 @@ function setupBottomMenu() {
         item.addEventListener('click', () => {
             const targetSection = item.dataset.section;
             
-            // Remove active de todos
             menuItems.forEach(mi => mi.classList.remove('active'));
             sections.forEach(s => s.classList.remove('active'));
             
-            // Adiciona active no selecionado
             item.classList.add('active');
             document.getElementById(targetSection).classList.add('active');
             
-            // Scroll para o topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
@@ -131,28 +124,21 @@ function setupEventListeners() {
     searchInput.addEventListener('input', handleSearch);
     clearListBtn.addEventListener('click', clearList);
 
-    // Listener para mudar tipo de busca
     document.querySelectorAll('input[name="searchType"]').forEach(radio => {
         radio.addEventListener('change', handleSearchTypeChange);
     });
 
-    // Listener para mudança de fonte (esconder opção "Por Número" quando fonte for "Avulsos")
     document.querySelectorAll('input[name="source"]').forEach(radio => {
         radio.addEventListener('change', handleSourceChange);
     });
 
-    document.querySelectorAll('input[name="exportType"]').forEach(radio => {
-        radio.addEventListener('change', handleExportTypeChange);
-    });
-
     exportImageBtn.addEventListener('click', generateImage);
     exportTextBtn.addEventListener('click', sendViaWhatsApp);
-    exportLyricsBtn.addEventListener('click', showLyricsModal);
-    saveLocalBtn.addEventListener('click', saveCurrentList);
-
     saveListBtn.addEventListener('click', saveList);
+    
+    filterChurch.addEventListener('change', filterSavedLists);
+    reportChurch.addEventListener('change', generateReport);
 
-    // Fechar Modals
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.target.closest('.modal').classList.remove('show');
@@ -191,28 +177,20 @@ function handleSearchTypeChange() {
 
 function handleSourceChange() {
     const selectedSource = document.querySelector('input[name="source"]:checked').value;
-    const searchTypeSelector = document.getElementById('searchTypeSelector');
     const searchByNumber = document.getElementById('searchByNumber');
     const searchByTitleLyrics = document.getElementById('searchByTitleLyrics');
     
     if (selectedSource === 'Avulsos') {
-        // Esconde opção "Por Número" e força "Por Título/Letra"
         searchByNumber.closest('.radio-option').style.display = 'none';
         searchByTitleLyrics.checked = true;
         handleSearchTypeChange();
     } else {
-        // Mostra opção "Por Número"
         searchByNumber.closest('.radio-option').style.display = 'flex';
     }
     
     searchInput.value = '';
     searchResults.innerHTML = '';
     searchResults.style.display = 'none';
-}
-
-function handleExportTypeChange() {
-    const exportType = document.querySelector('input[name="exportType"]:checked').value;
-    exportLyricsBtn.style.display = (exportType === 'lyrics') ? 'inline-flex' : 'none';
 }
 
 // --- Funções de Busca ---
@@ -231,13 +209,11 @@ function handleSearch(event) {
     let results = [];
 
     if (searchType === 'number') {
-        // Busca apenas por número
         results = allSongs.filter(song => {
             const numero = song.numero.toLowerCase();
             return numero && numero.includes(searchTerm);
         });
     } else {
-        // Busca por título OU letra
         results = allSongs.filter(song => {
             const titulo = song.titulo.toLowerCase();
             const letra = song.letra ? song.letra.toLowerCase() : '';
@@ -249,7 +225,6 @@ function handleSearch(event) {
         results = results.filter(song => song.origem === selectedSource);
     }
 
-    // Ordena resultados
     results.sort((a, b) => {
         const numA = parseInt(a.numero, 10);
         const numB = parseInt(b.numero, 10);
@@ -275,7 +250,6 @@ function displaySearchResults(results, selectedSource) {
         return;
     }
 
-    // LIMITE DE 5 RESULTADOS
     const limitedResults = results.slice(0, 5);
     const showOrigin = selectedSource === 'Todas';
 
@@ -310,7 +284,51 @@ function displaySearchResults(results, selectedSource) {
     searchResults.style.display = 'block';
 }
 
-function addSongToList(songData) {
+// Verificar se hino foi cantado recentemente (últimos 4 dias)
+async function checkRecentSong(songData) {
+    const churchName = churchNameInput.value.trim();
+    if (!churchName || !dbRefLists) return true;
+
+    try {
+        const snapshot = await window.firebaseDb.get(dbRefLists);
+        if (!snapshot.exists()) return true;
+
+        const lists = [];
+        snapshot.forEach(child => {
+            lists.push(child.val());
+        });
+
+        const currentDate = new Date(listDate.value);
+        const fourDaysAgo = new Date(currentDate);
+        fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+
+        const songId = `${songData.origem}-${songData.numero || songData.titulo}`;
+
+        for (const list of lists) {
+            if (list.churchName !== churchName) continue;
+            
+            const listDateObj = new Date(list.date);
+            if (listDateObj >= fourDaysAgo && listDateObj < currentDate) {
+                const hasSong = list.songs.some(song => 
+                    `${song.origem}-${song.numero || song.titulo}` === songId
+                );
+                
+                if (hasSong) {
+                    const formattedDate = formatDateForDisplay(list.date);
+                    const message = `Este hino foi cantado recentemente em ${formattedDate}.\n\nDeseja adicionar mesmo assim?`;
+                    return confirm(message);
+                }
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao verificar hino recente:', error);
+        return true;
+    }
+}
+
+async function addSongToList(songData) {
     const uniqueId = `${songData.origem}-${songData.numero || songData.titulo.toLowerCase()}`;
     const isDuplicate = selectedSongs.some(song => 
         `${song.origem}-${song.numero || song.titulo.toLowerCase()}` === uniqueId
@@ -320,6 +338,10 @@ function addSongToList(songData) {
         showToast('Louvor já está na lista', 'warning');
         return;
     }
+
+    // Verificar se foi cantado recentemente
+    const canAdd = await checkRecentSong(songData);
+    if (!canAdd) return;
     
     selectedSongs.push(songData);
     updateSelectedList();
@@ -327,9 +349,6 @@ function addSongToList(songData) {
     searchResults.innerHTML = '';
     searchResults.style.display = 'none';
     showToast(`"${songData.titulo}" adicionado`, 'success');
-    
-    // Auto-salva a lista localmente
-    saveCurrentList();
 }
 
 function updateSelectedList() {
@@ -347,7 +366,6 @@ function updateSelectedList() {
 
     selectedSongs.forEach((song, index) => {
         const listItem = document.createElement('li');
-        listItem.draggable = true;
         listItem.dataset.index = index;
         
         const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
@@ -362,6 +380,13 @@ function updateSelectedList() {
             <button class="remove-btn" data-index="${index}" title="Remover">&times;</button>
         `;
 
+        // Touch events para drag and drop
+        listItem.addEventListener('touchstart', handleTouchStart, { passive: false });
+        listItem.addEventListener('touchmove', handleTouchMove, { passive: false });
+        listItem.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+        // Mouse events para desktop
+        listItem.draggable = true;
         listItem.addEventListener('dragstart', handleDragStart);
         listItem.addEventListener('dragover', handleDragOver);
         listItem.addEventListener('drop', handleDrop);
@@ -376,10 +401,79 @@ function updateSelectedList() {
     });
 }
 
-// --- Drag and Drop ---
+// --- Touch Drag and Drop ---
+function handleTouchStart(e) {
+    const touch = e.touches[0];
+    touchStartY = touch.clientY;
+    touchStartX = touch.clientX;
+    draggedElement = this;
+    draggedIndex = parseInt(this.dataset.index, 10);
+    
+    setTimeout(() => {
+        if (draggedElement) {
+            draggedElement.classList.add('dragging');
+        }
+    }, 100);
+}
+
+function handleTouchMove(e) {
+    if (!draggedElement) return;
+    
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+    
+    if (deltaY < 10) return;
+
+    const items = Array.from(songList.children);
+    const currentY = touch.clientY;
+    
+    let targetElement = null;
+    items.forEach(item => {
+        if (item === draggedElement) return;
+        const rect = item.getBoundingClientRect();
+        if (currentY > rect.top && currentY < rect.bottom) {
+            targetElement = item;
+        }
+    });
+
+    if (targetElement && targetElement !== draggedElement) {
+        const targetIndex = parseInt(targetElement.dataset.index, 10);
+        
+        items.forEach(item => item.classList.remove('drag-over'));
+        targetElement.classList.add('drag-over');
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!draggedElement) return;
+    
+    const items = Array.from(songList.children);
+    const dragOverItem = items.find(item => item.classList.contains('drag-over'));
+    
+    if (dragOverItem && draggedElement !== dragOverItem) {
+        const targetIndex = parseInt(dragOverItem.dataset.index, 10);
+        
+        const itemToMove = selectedSongs.splice(draggedIndex, 1)[0];
+        selectedSongs.splice(targetIndex, 0, itemToMove);
+        
+        updateSelectedList();
+    }
+    
+    items.forEach(item => {
+        item.classList.remove('dragging');
+        item.classList.remove('drag-over');
+    });
+    
+    draggedElement = null;
+    draggedIndex = -1;
+}
+
+// --- Mouse Drag and Drop (Desktop) ---
 function handleDragStart(e) {
     draggedElement = this;
-    e.dataTransfer.setData('text/plain', this.dataset.index);
+    draggedIndex = parseInt(this.dataset.index, 10);
+    e.dataTransfer.setData('text/plain', draggedIndex);
     e.dataTransfer.effectAllowed = 'move';
     setTimeout(() => this.classList.add('dragging'), 0);
 }
@@ -387,29 +481,30 @@ function handleDragStart(e) {
 function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    this.classList.add('drag-over');
 }
 
 function handleDrop(e) {
     e.preventDefault();
     e.stopPropagation();
 
+    this.classList.remove('drag-over');
+
     if (draggedElement !== this) {
-        const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
         const targetIndex = parseInt(this.dataset.index, 10);
 
         const itemToMove = selectedSongs.splice(draggedIndex, 1)[0];
         selectedSongs.splice(targetIndex, 0, itemToMove);
 
         updateSelectedList();
-        
-        // Auto-salva após reordenar
-        saveCurrentList();
     }
 }
 
 function handleDragEnd(e) {
     this.classList.remove('dragging');
+    document.querySelectorAll('#songList li').forEach(item => item.classList.remove('drag-over'));
     draggedElement = null;
+    draggedIndex = -1;
 }
 
 function removeSongFromList(index) {
@@ -418,18 +513,6 @@ function removeSongFromList(index) {
         selectedSongs.splice(index, 1);
         updateSelectedList();
         showToast(`"${removedSongTitle}" removido`, 'info');
-        
-        // Auto-salva após remover
-        if (selectedSongs.length > 0) {
-            saveCurrentList();
-        } else {
-            // Se ficou vazia, limpa o localStorage
-            try {
-                localStorage.removeItem('currentList');
-            } catch (error) {
-                console.error("Erro ao limpar localStorage:", error);
-            }
-        }
     }
 }
 
@@ -438,14 +521,6 @@ function clearList() {
     if (confirm('Limpar toda a lista?')) {
         selectedSongs = [];
         updateSelectedList();
-        
-        // Limpa também o localStorage
-        try {
-            localStorage.removeItem('currentList');
-        } catch (error) {
-            console.error("Erro ao limpar localStorage:", error);
-        }
-        
         showToast('Lista limpa', 'info');
     }
 }
@@ -461,7 +536,7 @@ function generateImage() {
     const ctx = canvas.getContext('2d');
     const width = 800;
     const lineHeight = 45;
-    const headerHeight = 120;
+    const headerHeight = 140;
     const contentHeight = selectedSongs.length * lineHeight;
     const totalHeight = headerHeight + contentHeight + 20;
 
@@ -478,39 +553,41 @@ function generateImage() {
     ctx.textAlign = 'center';
     ctx.fillText('LISTA DE LOUVORES', width / 2, 40);
 
-    // Data
-    const formattedDate = formatDateForDisplay(listDate.value);
+    // Igreja
+    const churchName = churchNameInput.value.trim() || 'Igreja';
     ctx.fillStyle = '#666';
     ctx.font = '20px Arial';
-    ctx.fillText(formattedDate, width / 2, 70);
+    ctx.fillText(churchName, width / 2, 70);
+
+    // Data
+    const formattedDate = formatDateForDisplay(listDate.value);
+    ctx.fillText(formattedDate, width / 2, 95);
 
     // Linha separadora
     ctx.strokeStyle = '#2196F3';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(50, 90);
-    ctx.lineTo(width - 50, 90);
+    ctx.moveTo(50, 110);
+    ctx.lineTo(width - 50, 110);
     ctx.stroke();
 
     // Cabeçalho da tabela
     ctx.fillStyle = '#333';
     ctx.font = 'bold 18px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText('Nº', 60, 115);
-    ctx.fillText('TÍTULO', 150, 115);
+    ctx.fillText('Nº', 60, 135);
+    ctx.fillText('TÍTULO', 150, 135);
 
     // Lista de louvores
     ctx.font = '18px Arial';
     selectedSongs.forEach((song, index) => {
         const y = headerHeight + 20 + (index * lineHeight);
         
-        // Número
         ctx.fillStyle = '#1976D2';
         ctx.font = 'bold 18px Arial';
         const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '-';
         ctx.fillText(displayNumber, 60, y);
 
-        // Título
         ctx.fillStyle = '#333';
         ctx.font = '18px Arial';
         let titulo = song.titulo;
@@ -557,172 +634,37 @@ function sendViaWhatsApp() {
         return;
     }
 
-    const exportType = document.querySelector('input[name="exportType"]:checked').value;
+    const churchName = churchNameInput.value.trim() || 'Igreja';
     const dateStr = formatDateForDisplay(listDate.value);
-    let message = `*LISTA DE LOUVORES*\n📅 ${dateStr}\n\n`;
+    let message = `*LISTA DE LOUVORES*\n🏛️ ${churchName}\n📅 ${dateStr}\n\n`;
 
     selectedSongs.forEach((song) => {
         const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
         
-        // Apenas o número do hino, sem numeração adicional
         if (displayNumber) {
             message += `${displayNumber} - ${song.titulo}\n`;
         } else {
             message += `${song.titulo}\n`;
-        }
-        
-        if (exportType === 'lyrics' && song.letra) {
-            // Formata a letra separando CORO e estrofes
-            const formattedLyrics = formatLyricsForWhatsApp(song.letra);
-            message += `\n${formattedLyrics}\n\n`;
         }
     });
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     
-    // Abre no mesmo contexto sem abrir nova aba
     window.location.href = whatsappUrl;
-}
-
-function formatLyricsForWhatsApp(letra) {
-    if (!letra) return '';
-    
-    // Remove "Índice" do final se existir
-    letra = letra.replace(/Índice\s*$/gi, '').trim();
-    
-    // Separa por linhas
-    let lines = letra.split('\n');
-    let formattedLines = [];
-    
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        
-        if (line === '') {
-            formattedLines.push('');
-            continue;
-        }
-        
-        // Identifica CORO
-        if (line.toUpperCase() === 'CORO' || line.toUpperCase() === 'CÔRO') {
-            formattedLines.push('');
-            formattedLines.push('_*CORO*_');
-            continue;
-        }
-        
-        // Identifica BIS
-        if (line.toUpperCase() === 'BIS' || line.toUpperCase() === '(BIS)') {
-            formattedLines.push('_(BIS)_');
-            continue;
-        }
-        
-        // Adiciona a linha normal
-        formattedLines.push(line);
-    }
-    
-    return formattedLines.join('\n');
-}
-
-function showLyricsModal() {
-    if (selectedSongs.length === 0) {
-        showToast("Adicione louvores à lista", "warning");
-        return;
-    }
-
-    lyricsListContainer.innerHTML = '';
-
-    selectedSongs.forEach((song, index) => {
-        const item = document.createElement('div');
-        item.className = 'lyrics-item';
-        
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
-        const numberStr = displayNumber ? `${displayNumber} - ` : '';
-        
-        item.innerHTML = `
-            <div class="lyrics-item-header">${numberStr}${song.titulo}</div>
-            <div class="lyrics-item-hint">Toque para copiar</div>
-        `;
-
-        item.addEventListener('click', () => {
-            const formattedLyrics = formatLyricsForWhatsApp(song.letra || 'Letra não disponível');
-            const textToCopy = `*${numberStr}${song.titulo}*\n\n${formattedLyrics}`;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textToCopy)
-                    .then(() => showToast(`"${song.titulo}" copiado`, 'success'))
-                    .catch(() => showToast('Erro ao copiar', 'error'));
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = textToCopy;
-                textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showToast(`"${song.titulo}" copiado`, 'success');
-                } catch (err) {
-                    showToast('Erro ao copiar', 'error');
-                }
-                document.body.removeChild(textArea);
-            }
-        });
-
-        lyricsListContainer.appendChild(item);
-    });
-
-    lyricsModal.classList.add('show');
-}
-
-// --- Salvar Lista Localmente ---
-function saveCurrentList() {
-    if (selectedSongs.length === 0) {
-        showToast("Adicione louvores à lista", "warning");
-        return;
-    }
-
-    const currentList = {
-        date: listDate.value,
-        songs: selectedSongs
-    };
-
-    try {
-        localStorage.setItem('currentList', JSON.stringify(currentList));
-        showToast("Lista salva localmente", "success");
-    } catch (error) {
-        console.error("Erro ao salvar lista:", error);
-        showToast("Erro ao salvar lista", "error");
-    }
-}
-
-function loadCurrentList() {
-    try {
-        const savedList = localStorage.getItem('currentList');
-        if (savedList) {
-            const listData = JSON.parse(savedList);
-            if (listData.songs && Array.isArray(listData.songs)) {
-                selectedSongs = listData.songs;
-                if (listData.date) {
-                    listDate.value = listData.date;
-                }
-                console.log("Lista carregada do localStorage");
-            }
-        }
-    } catch (error) {
-        console.error("Erro ao carregar lista:", error);
-    }
 }
 
 // --- Firebase ---
 function saveList() {
-    if (!window.firebaseDb || !dbRefSavedLists) {
-        showToast("Erro de conexão", "error");
+    if (!window.firebaseDb || !dbRefLists) {
+        showToast("Erro de conexão com Firebase", "error");
         return;
     }
 
-    const listName = listNameInput.value.trim();
-    if (!listName) {
-        showToast("Digite um nome para a lista", "warning");
+    const churchName = churchNameInput.value.trim();
+    if (!churchName) {
+        showToast("Digite o nome da igreja", "warning");
+        churchNameInput.focus();
         return;
     }
 
@@ -732,18 +674,18 @@ function saveList() {
     }
 
     const newListData = {
-        name: listName,
+        churchName: churchName,
         date: listDate.value,
         songs: selectedSongs,
         createdAt: new Date().toISOString()
     };
 
-    const newListRef = window.firebaseDb.push(dbRefSavedLists);
+    const newListRef = window.firebaseDb.push(dbRefLists);
 
     window.firebaseDb.set(newListRef, newListData)
         .then(() => {
-            listNameInput.value = '';
-            showToast(`Lista "${listName}" salva`, 'success');
+            showToast(`Lista salva para ${churchName}`, 'success');
+            loadAllLists();
         })
         .catch((error) => {
             console.error("Erro ao salvar:", error);
@@ -751,34 +693,79 @@ function saveList() {
         });
 }
 
-function loadSavedLists() {
-    if (!window.firebaseDb || !dbRefSavedLists) {
+function loadAllLists() {
+    if (!window.firebaseDb || !dbRefLists) {
         savedListsContainer.innerHTML = '<div class="empty-message">Erro de conexão</div>';
         return;
     }
 
-    window.firebaseDb.onValue(dbRefSavedLists, (snapshot) => {
-        savedListsContainer.innerHTML = '';
-
+    window.firebaseDb.onValue(dbRefLists, (snapshot) => {
+        allLists = [];
+        
         if (snapshot.exists()) {
-            const listsArray = [];
             snapshot.forEach((childSnapshot) => {
                 const listData = childSnapshot.val();
                 listData.id = childSnapshot.key;
-                listsArray.push(listData);
+                allLists.push(listData);
             });
 
-            listsArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-            listsArray.forEach(list => {
-                renderSavedListItem(list);
-            });
-        } else {
-            savedListsContainer.innerHTML = '<div class="empty-message">Nenhuma lista salva</div>';
+            allLists.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
+
+        updateChurchSelects();
+        filterSavedLists();
     }, (error) => {
         console.error("Erro ao carregar:", error);
         savedListsContainer.innerHTML = '<div class="empty-message">Erro ao carregar listas</div>';
+    });
+}
+
+function updateChurchSelects() {
+    const churches = [...new Set(allLists.map(list => list.churchName))].sort();
+    
+    // Atualizar datalist de sugestões
+    churchSuggestions.innerHTML = '';
+    churches.forEach(church => {
+        const option = document.createElement('option');
+        option.value = church;
+        churchSuggestions.appendChild(option);
+    });
+
+    // Atualizar select de filtro
+    filterChurch.innerHTML = '<option value="">Todas as igrejas</option>';
+    churches.forEach(church => {
+        const option = document.createElement('option');
+        option.value = church;
+        option.textContent = church;
+        filterChurch.appendChild(option);
+    });
+
+    // Atualizar select de relatório
+    reportChurch.innerHTML = '<option value="">Selecione uma igreja</option>';
+    churches.forEach(church => {
+        const option = document.createElement('option');
+        option.value = church;
+        option.textContent = church;
+        reportChurch.appendChild(option);
+    });
+}
+
+function filterSavedLists() {
+    const selectedChurch = filterChurch.value;
+    savedListsContainer.innerHTML = '';
+
+    let filteredLists = allLists;
+    if (selectedChurch) {
+        filteredLists = allLists.filter(list => list.churchName === selectedChurch);
+    }
+
+    if (filteredLists.length === 0) {
+        savedListsContainer.innerHTML = '<div class="empty-message">Nenhuma lista encontrada</div>';
+        return;
+    }
+
+    filteredLists.forEach(list => {
+        renderSavedListItem(list);
     });
 }
 
@@ -791,7 +778,7 @@ function renderSavedListItem(list) {
     const savedDateStr = createdAtDate ? createdAtDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data indisponível';
 
     item.innerHTML = `
-        <div class="saved-list-name">${list.name}</div>
+        <div class="saved-list-name">${list.churchName}</div>
         <div class="saved-list-info">
             📅 Lista: ${formattedListDate}<br>
             🎵 ${list.songs.length} ${list.songs.length === 1 ? 'louvor' : 'louvores'}<br>
@@ -804,7 +791,7 @@ function renderSavedListItem(list) {
     `;
 
     item.querySelector('.load-list-btn').addEventListener('click', () => loadList(list));
-    item.querySelector('.delete-list-btn').addEventListener('click', () => deleteList(list.id, list.name));
+    item.querySelector('.delete-list-btn').addEventListener('click', () => deleteList(list.id, list.churchName));
 
     savedListsContainer.appendChild(item);
 }
@@ -812,43 +799,130 @@ function renderSavedListItem(list) {
 function loadList(listData) {
     if (listData && Array.isArray(listData.songs) && listData.date) {
         if (selectedSongs.length > 0) {
-            if (!confirm(`Carregar "${listData.name}" substituirá a lista atual. Continuar?`)) {
+            if (!confirm(`Carregar lista de "${listData.churchName}" substituirá a lista atual. Continuar?`)) {
                 return;
             }
         }
         
         selectedSongs = JSON.parse(JSON.stringify(listData.songs));
         listDate.value = listData.date;
+        churchNameInput.value = listData.churchName;
         updateSelectedList();
-        showToast(`Lista "${listData.name}" carregada`, 'success');
+        showToast(`Lista de "${listData.churchName}" carregada`, 'success');
         
-        // Volta para a tela de busca
         document.querySelector('.menu-item[data-section="searchSection"]').click();
     } else {
         showToast("Erro ao carregar lista", "error");
     }
 }
 
-function deleteList(listId, listName) {
-    if (!window.firebaseDb || !dbRefSavedLists) {
+function deleteList(listId, churchName) {
+    if (!window.firebaseDb || !dbRefLists) {
         showToast("Erro de conexão", "error");
         return;
     }
 
-    if (!confirm(`Excluir "${listName || 'lista'}"?`)) {
+    if (!confirm(`Excluir lista de "${churchName}"?`)) {
         return;
     }
 
-    const listToDeleteRef = window.firebaseDb.ref(window.firebaseDb.database, `savedLists/${listId}`);
+    const listToDeleteRef = window.firebaseDb.ref(window.firebaseDb.database, `lists/${listId}`);
 
     window.firebaseDb.remove(listToDeleteRef)
         .then(() => {
-            showToast(`"${listName}" excluída`, 'info');
+            showToast(`Lista de "${churchName}" excluída`, 'info');
+            loadAllLists();
         })
         .catch((error) => {
             console.error("Erro ao excluir:", error);
             showToast('Erro ao excluir lista', 'error');
         });
+}
+
+// --- Relatórios ---
+function generateReport() {
+    const selectedChurch = reportChurch.value;
+    reportContent.innerHTML = '';
+
+    if (!selectedChurch) {
+        reportContent.innerHTML = '<div class="empty-message">Selecione uma igreja para ver os relatórios</div>';
+        return;
+    }
+
+    const churchLists = allLists.filter(list => list.churchName === selectedChurch);
+
+    if (churchLists.length === 0) {
+        reportContent.innerHTML = '<div class="empty-message">Nenhuma lista encontrada para esta igreja</div>';
+        return;
+    }
+
+    // Contar quantas vezes cada hino foi cantado
+    const songCount = {};
+    churchLists.forEach(list => {
+        list.songs.forEach(song => {
+            const key = `${song.origem}-${song.numero || song.titulo}`;
+            if (!songCount[key]) {
+                songCount[key] = {
+                    song: song,
+                    count: 0
+                };
+            }
+            songCount[key].count++;
+        });
+    });
+
+    // Ordenar por quantidade (mais cantados primeiro)
+    const sortedSongs = Object.values(songCount).sort((a, b) => b.count - a.count);
+
+    // Top 10
+    const top10 = sortedSongs.slice(0, 10);
+
+    // Criar card de relatório
+    const reportCard = document.createElement('div');
+    reportCard.className = 'report-card';
+    reportCard.innerHTML = '<h3>🏆 Top 10 Mais Cantados</h3>';
+
+    if (top10.length === 0) {
+        reportCard.innerHTML += '<div class="empty-message">Nenhum hino encontrado</div>';
+    } else {
+        const reportList = document.createElement('ul');
+        reportList.className = 'report-list';
+
+        top10.forEach((item, index) => {
+            const song = item.song;
+            const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+
+            const reportItem = document.createElement('li');
+            reportItem.className = 'report-item';
+            reportItem.innerHTML = `
+                <div class="report-song-info">
+                    <span style="color: #999; margin-right: 8px;">${index + 1}.</span>
+                    ${displayNumber ? `<span class="report-song-number">${displayNumber}</span>` : ''}
+                    <span class="report-song-title">${song.titulo}</span>
+                </div>
+                <span class="report-count">${item.count}x</span>
+            `;
+            reportList.appendChild(reportItem);
+        });
+
+        reportCard.appendChild(reportList);
+    }
+
+    reportContent.appendChild(reportCard);
+
+    // Card de estatísticas gerais
+    const statsCard = document.createElement('div');
+    statsCard.className = 'report-card';
+    statsCard.innerHTML = `
+        <h3>📊 Estatísticas Gerais</h3>
+        <div style="padding: 10px;">
+            <p style="margin-bottom: 8px;"><strong>Total de listas:</strong> ${churchLists.length}</p>
+            <p style="margin-bottom: 8px;"><strong>Hinos diferentes:</strong> ${Object.keys(songCount).length}</p>
+            <p><strong>Total de louvores cantados:</strong> ${churchLists.reduce((sum, list) => sum + list.songs.length, 0)}</p>
+        </div>
+    `;
+
+    reportContent.appendChild(statsCard);
 }
 
 // --- Auxiliares ---
