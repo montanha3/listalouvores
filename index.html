@@ -37,23 +37,25 @@
                     </label>
                 </div>
 
-                <div class="search-type-selector">
+                <div class="search-type-selector" id="searchTypeSelector">
                     <label class="radio-option">
-                        <input type="radio" name="searchType" id="searchByTitle" value="title" checked>
-                        <span>Por Título/Número</span>
+                        <input type="radio" name="searchType" id="searchByNumber" value="number" checked>
+                        <span>Por Número</span>
                     </label>
                     <label class="radio-option">
-                        <input type="radio" name="searchType" id="searchByLyrics" value="lyrics">
-                        <span>Por Letra</span>
+                        <input type="radio" name="searchType" id="searchByTitleLyrics" value="titleLyrics">
+                        <span>Por Título/Letra</span>
                     </label>
                 </div>
 
                 <div class="search-input-wrapper">
                     <input
-                        type="text"
+                        type="number"
                         id="searchInput"
-                        placeholder="Digite número, título ou palavra da letra..."
+                        placeholder="Digite o número..."
                         autocomplete="off"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
                     >
                     <span class="search-icon">🔎</span>
                 </div>
@@ -99,6 +101,9 @@
                     </div>
 
                     <div class="export-buttons">
+                        <button id="saveLocalBtn" class="btn btn-success">
+                            💾 Salvar Lista
+                        </button>
                         <button id="exportImageBtn" class="btn btn-primary">
                             🖼️ Imagem
                         </button>
