@@ -13,6 +13,7 @@ const exportSection = document.getElementById('exportSection');
 const exportImageBtn = document.getElementById('exportImageBtn');
 const exportTextBtn = document.getElementById('exportTextBtn');
 const exportLyricsBtn = document.getElementById('exportLyricsBtn');
+const saveLocalBtn = document.getElementById('saveLocalBtn');
 const saveListBtn = document.getElementById('saveListBtn');
 const listNameInput = document.getElementById('listNameInput');
 const savedListsContainer = document.getElementById('savedListsContainer');
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSongs();
     setupEventListeners();
     setTodayDate();
+    loadCurrentList(); // Carrega lista salva localmente se existir
     updateSelectedList();
     loadSavedLists();
     setupBottomMenu();
@@ -129,6 +131,16 @@ function setupEventListeners() {
     searchInput.addEventListener('input', handleSearch);
     clearListBtn.addEventListener('click', clearList);
 
+    // Listener para mudar tipo de busca
+    document.querySelectorAll('input[name="searchType"]').forEach(radio => {
+        radio.addEventListener('change', handleSearchTypeChange);
+    });
+
+    // Listener para mudança de fonte (esconder opção "Por Número" quando fonte for "Avulsos")
+    document.querySelectorAll('input[name="source"]').forEach(radio => {
+        radio.addEventListener('change', handleSourceChange);
+    });
+
     document.querySelectorAll('input[name="exportType"]').forEach(radio => {
         radio.addEventListener('change', handleExportTypeChange);
     });
@@ -136,6 +148,7 @@ function setupEventListeners() {
     exportImageBtn.addEventListener('click', generateImage);
     exportTextBtn.addEventListener('click', sendViaWhatsApp);
     exportLyricsBtn.addEventListener('click', showLyricsModal);
+    saveLocalBtn.addEventListener('click', saveCurrentList);
 
     saveListBtn.addEventListener('click', saveList);
 
@@ -156,6 +169,47 @@ function setupEventListeners() {
     shareImageBtn.addEventListener('click', shareImageOnWhatsApp);
 }
 
+function handleSearchTypeChange() {
+    const searchType = document.querySelector('input[name="searchType"]:checked').value;
+    
+    if (searchType === 'number') {
+        searchInput.type = 'number';
+        searchInput.placeholder = 'Digite o número...';
+        searchInput.inputMode = 'numeric';
+        searchInput.pattern = '[0-9]*';
+    } else {
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Digite título ou palavra da letra...';
+        searchInput.removeAttribute('inputmode');
+        searchInput.removeAttribute('pattern');
+    }
+    
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    searchResults.style.display = 'none';
+}
+
+function handleSourceChange() {
+    const selectedSource = document.querySelector('input[name="source"]:checked').value;
+    const searchTypeSelector = document.getElementById('searchTypeSelector');
+    const searchByNumber = document.getElementById('searchByNumber');
+    const searchByTitleLyrics = document.getElementById('searchByTitleLyrics');
+    
+    if (selectedSource === 'Avulsos') {
+        // Esconde opção "Por Número" e força "Por Título/Letra"
+        searchByNumber.closest('.radio-option').style.display = 'none';
+        searchByTitleLyrics.checked = true;
+        handleSearchTypeChange();
+    } else {
+        // Mostra opção "Por Número"
+        searchByNumber.closest('.radio-option').style.display = 'flex';
+    }
+    
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+    searchResults.style.display = 'none';
+}
+
 function handleExportTypeChange() {
     const exportType = document.querySelector('input[name="exportType"]:checked').value;
     exportLyricsBtn.style.display = (exportType === 'lyrics') ? 'inline-flex' : 'none';
@@ -166,7 +220,8 @@ function handleSearch(event) {
     const searchTerm = event.target.value.trim().toLowerCase();
     searchResults.innerHTML = '';
     
-    if (searchTerm.length < 2 && !/^\d+$/.test(searchTerm)) {
+    if (searchTerm.length < 1) {
+        searchResults.style.display = 'none';
         return;
     }
 
@@ -175,18 +230,18 @@ function handleSearch(event) {
 
     let results = [];
 
-    if (searchType === 'lyrics') {
-        // Busca por letra
-        results = allSongs.filter(song => {
-            const letra = song.letra ? song.letra.toLowerCase() : '';
-            return letra.includes(searchTerm);
-        });
-    } else {
-        // Busca por título/número
+    if (searchType === 'number') {
+        // Busca apenas por número
         results = allSongs.filter(song => {
             const numero = song.numero.toLowerCase();
+            return numero && numero.includes(searchTerm);
+        });
+    } else {
+        // Busca por título OU letra
+        results = allSongs.filter(song => {
             const titulo = song.titulo.toLowerCase();
-            return (numero && numero.includes(searchTerm)) || titulo.includes(searchTerm);
+            const letra = song.letra ? song.letra.toLowerCase() : '';
+            return titulo.includes(searchTerm) || letra.includes(searchTerm);
         });
     }
 
@@ -208,10 +263,10 @@ function handleSearch(event) {
         return a.titulo.localeCompare(b.titulo);
     });
 
-    displaySearchResults(results, selectedSource, searchType);
+    displaySearchResults(results, selectedSource);
 }
 
-function displaySearchResults(results, selectedSource, searchType) {
+function displaySearchResults(results, selectedSource) {
     searchResults.innerHTML = '';
     
     if (results.length === 0) {
@@ -272,6 +327,9 @@ function addSongToList(songData) {
     searchResults.innerHTML = '';
     searchResults.style.display = 'none';
     showToast(`"${songData.titulo}" adicionado`, 'success');
+    
+    // Auto-salva a lista localmente
+    saveCurrentList();
 }
 
 function updateSelectedList() {
@@ -343,6 +401,9 @@ function handleDrop(e) {
         selectedSongs.splice(targetIndex, 0, itemToMove);
 
         updateSelectedList();
+        
+        // Auto-salva após reordenar
+        saveCurrentList();
     }
 }
 
@@ -357,6 +418,18 @@ function removeSongFromList(index) {
         selectedSongs.splice(index, 1);
         updateSelectedList();
         showToast(`"${removedSongTitle}" removido`, 'info');
+        
+        // Auto-salva após remover
+        if (selectedSongs.length > 0) {
+            saveCurrentList();
+        } else {
+            // Se ficou vazia, limpa o localStorage
+            try {
+                localStorage.removeItem('currentList');
+            } catch (error) {
+                console.error("Erro ao limpar localStorage:", error);
+            }
+        }
     }
 }
 
@@ -365,6 +438,14 @@ function clearList() {
     if (confirm('Limpar toda a lista?')) {
         selectedSongs = [];
         updateSelectedList();
+        
+        // Limpa também o localStorage
+        try {
+            localStorage.removeItem('currentList');
+        } catch (error) {
+            console.error("Erro ao limpar localStorage:", error);
+        }
+        
         showToast('Lista limpa', 'info');
     }
 }
@@ -480,19 +561,66 @@ function sendViaWhatsApp() {
     const dateStr = formatDateForDisplay(listDate.value);
     let message = `*LISTA DE LOUVORES*\n📅 ${dateStr}\n\n`;
 
-    selectedSongs.forEach((song, index) => {
+    selectedSongs.forEach((song) => {
         const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
-        const numberStr = displayNumber ? `${displayNumber} - ` : '';
-        message += `${index + 1}. ${numberStr}${song.titulo}\n`;
+        
+        // Apenas o número do hino, sem numeração adicional
+        if (displayNumber) {
+            message += `${displayNumber} - ${song.titulo}\n`;
+        } else {
+            message += `${song.titulo}\n`;
+        }
         
         if (exportType === 'lyrics' && song.letra) {
-            message += `\n${song.letra}\n\n`;
+            // Formata a letra separando CORO e estrofes
+            const formattedLyrics = formatLyricsForWhatsApp(song.letra);
+            message += `\n${formattedLyrics}\n\n`;
         }
     });
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
+    
+    // Abre no mesmo contexto sem abrir nova aba
+    window.location.href = whatsappUrl;
+}
+
+function formatLyricsForWhatsApp(letra) {
+    if (!letra) return '';
+    
+    // Remove "Índice" do final se existir
+    letra = letra.replace(/Índice\s*$/gi, '').trim();
+    
+    // Separa por linhas
+    let lines = letra.split('\n');
+    let formattedLines = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        
+        if (line === '') {
+            formattedLines.push('');
+            continue;
+        }
+        
+        // Identifica CORO
+        if (line.toUpperCase() === 'CORO' || line.toUpperCase() === 'CÔRO') {
+            formattedLines.push('');
+            formattedLines.push('_*CORO*_');
+            continue;
+        }
+        
+        // Identifica BIS
+        if (line.toUpperCase() === 'BIS' || line.toUpperCase() === '(BIS)') {
+            formattedLines.push('_(BIS)_');
+            continue;
+        }
+        
+        // Adiciona a linha normal
+        formattedLines.push(line);
+    }
+    
+    return formattedLines.join('\n');
 }
 
 function showLyricsModal() {
@@ -511,12 +639,13 @@ function showLyricsModal() {
         const numberStr = displayNumber ? `${displayNumber} - ` : '';
         
         item.innerHTML = `
-            <div class="lyrics-item-header">${index + 1}. ${numberStr}${song.titulo}</div>
+            <div class="lyrics-item-header">${numberStr}${song.titulo}</div>
             <div class="lyrics-item-hint">Toque para copiar</div>
         `;
 
         item.addEventListener('click', () => {
-            const textToCopy = `*${numberStr}${song.titulo}*\n\n${song.letra || 'Letra não disponível'}`;
+            const formattedLyrics = formatLyricsForWhatsApp(song.letra || 'Letra não disponível');
+            const textToCopy = `*${numberStr}${song.titulo}*\n\n${formattedLyrics}`;
             
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy)
@@ -543,6 +672,45 @@ function showLyricsModal() {
     });
 
     lyricsModal.classList.add('show');
+}
+
+// --- Salvar Lista Localmente ---
+function saveCurrentList() {
+    if (selectedSongs.length === 0) {
+        showToast("Adicione louvores à lista", "warning");
+        return;
+    }
+
+    const currentList = {
+        date: listDate.value,
+        songs: selectedSongs
+    };
+
+    try {
+        localStorage.setItem('currentList', JSON.stringify(currentList));
+        showToast("Lista salva localmente", "success");
+    } catch (error) {
+        console.error("Erro ao salvar lista:", error);
+        showToast("Erro ao salvar lista", "error");
+    }
+}
+
+function loadCurrentList() {
+    try {
+        const savedList = localStorage.getItem('currentList');
+        if (savedList) {
+            const listData = JSON.parse(savedList);
+            if (listData.songs && Array.isArray(listData.songs)) {
+                selectedSongs = listData.songs;
+                if (listData.date) {
+                    listDate.value = listData.date;
+                }
+                console.log("Lista carregada do localStorage");
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao carregar lista:", error);
+    }
 }
 
 // --- Firebase ---
