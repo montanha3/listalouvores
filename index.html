@@ -38,11 +38,11 @@
     <div class="container" id="mainApp" style="display: none;">
         <!-- Header Compacto -->
         <header class="app-header">
-            <div class="header-content">
-                <h1>📖 Lista de Louvores</h1>
-                <div class="current-church" id="currentChurchDisplay"></div>
+            <h1>📖 Lista de Louvores</h1>
+            <div class="church-info-header">
+                <span class="current-church" id="currentChurchDisplay"></span>
+                <button id="changeChurchBtn" class="btn-change-church">🔄</button>
             </div>
-            <button id="changeChurchBtn" class="btn-change-church">🔄 Trocar Igreja</button>
         </header>
 
         <!-- Seção de Busca -->
@@ -90,9 +90,8 @@
                         pattern="[0-9]*"
                     >
                     <span class="search-icon">🔎</span>
+                    <div id="searchResults"></div>
                 </div>
-
-                <div id="searchResults"></div>
             </div>
 
             <div class="list-section card">
@@ -126,10 +125,10 @@
                         <button id="exportTextBtn" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                               <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
-                            </svg> Enviar WhatsApp
+                            </svg> WhatsApp
                         </button>
                         <button id="clearListBtn" class="btn btn-secondary">
-                            🗑️ Limpar Lista
+                            🗑️ Limpar
                         </button>
                     </div>
                 </div>
@@ -155,6 +154,59 @@
                 </div>
             </div>
         </div>
+
+        <!-- Seção de Gerenciar Louvores -->
+        <div id="manageSongsSection" class="section">
+            <div class="manage-songs-section card">
+                <h2 class="section-title">➕ Adicionar Louvor</h2>
+                
+                <div class="add-song-form">
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <div class="source-selector">
+                            <label class="radio-option">
+                                <input type="radio" name="newSongType" value="Igreja" checked>
+                                <span>Igreja</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="newSongType" value="CIAS">
+                                <span>CIAS</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="newSongType" value="Avulsos">
+                                <span>Avulsos</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newSongTitle">Título: *</label>
+                        <input type="text" id="newSongTitle" class="form-input" placeholder="Título do louvor..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newSongNumber">Número:</label>
+                        <input type="text" id="newSongNumber" class="form-input" placeholder="Número (opcional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newSongLyrics">Letra:</label>
+                        <textarea id="newSongLyrics" class="form-textarea" placeholder="Letra do louvor (opcional)..." rows="6"></textarea>
+                    </div>
+
+                    <button id="addCustomSongBtn" class="btn btn-success btn-large">
+                        ➕ Adicionar Louvor
+                    </button>
+                </div>
+            </div>
+
+            <div class="manage-songs-section card">
+                <h2 class="section-title">✏️ Editar Louvores Cadastrados</h2>
+                <div id="customSongsContainer">
+                    <div class="empty-message">Nenhum louvor personalizado ainda</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Menu Inferior -->
@@ -170,6 +222,10 @@
         <button class="menu-item" data-section="reportsSection">
             <span class="menu-icon">📊</span>
             <span class="menu-label">Relatórios</span>
+        </button>
+        <button class="menu-item" data-section="manageSongsSection">
+            <span class="menu-icon">⚙️</span>
+            <span class="menu-label">Gerenciar</span>
         </button>
     </nav>
 
@@ -192,9 +248,56 @@
         </div>
     </div>
 
+    <!-- Modal de Edição -->
+    <div id="editSongModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>✏️ Editar Louvor</h3>
+            
+            <div class="form-group">
+                <label for="editSongTitle">Título: *</label>
+                <input type="text" id="editSongTitle" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editSongNumber">Número:</label>
+                <input type="text" id="editSongNumber" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="editSongLyrics">Letra:</label>
+                <textarea id="editSongLyrics" class="form-textarea" rows="6"></textarea>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="saveEditBtn" class="btn btn-success">
+                    💾 Salvar Alterações
+                </button>
+                <button id="cancelEditBtn" class="btn btn-secondary">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reordenar -->
+    <div id="reorderModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>🔄 Reordenar Lista</h3>
+            <p class="reorder-instructions">Toque e segure para arrastar os hinos</p>
+            <ul id="reorderList"></ul>
+            <div class="modal-buttons">
+                <button id="saveReorderBtn" class="btn btn-success">
+                    ✅ Salvar Ordem
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-      import { getDatabase, ref, set, push, onValue, remove, query, orderByChild, get, equalTo } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+      import { getDatabase, ref, set, push, onValue, remove, query, orderByChild, get, equalTo, update } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyD6dCUtxTRcRPTyKwI0Qh9_xspFHC7H9Wg",
@@ -209,7 +312,7 @@
       const app = initializeApp(firebaseConfig);
       const database = getDatabase(app);
 
-      window.firebaseDb = { database, ref, set, push, onValue, remove, query, orderByChild, get, equalTo };
+      window.firebaseDb = { database, ref, set, push, onValue, remove, query, orderByChild, get, equalTo, update };
     </script>
 
     <script src="script.js"></script>
