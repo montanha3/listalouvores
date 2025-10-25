@@ -417,38 +417,51 @@ function displaySearchResults(results, selectedSource) {
     });
 }
 
+/**
+ * Verifica se o louvor foi cantado nos últimos 5 dias.
+ * Agora usa confirm() para perguntar ao usuário se deseja adicionar.
+ * Retorna 'true' se o usuário confirmar ou se não for recente.
+ * Retorna 'false' se o usuário cancelar.
+ */
 function checkRecentSong(songData) {
-    if (!currentChurch || churchLists.length === 0) return true;
+    if (!currentChurch || churchLists.length === 0) return true; // Se não há listas, permitir adicionar
 
     const currentDate = new Date(listDate.value);
-    const fourDaysAgo = new Date(currentDate);
-    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+    // CORREÇÃO 1: Ajustado para 5 dias atrás
+    const fiveDaysAgo = new Date(currentDate);
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); 
 
-    const songId = `${songData.origem}-${songData.numero || songData.titulo}`;
+    // CORREÇÃO 2: Comparação em minúsculas para títulos
+    const songId = `${songData.origem}-${songData.numero || songData.titulo.toLowerCase()}`;
 
     for (const list of churchLists) {
         const listDateObj = new Date(list.date);
-        if (listDateObj >= fourDaysAgo && listDateObj < currentDate) {
+        // CORREÇÃO 1 (cont.): Usando a data correta
+        if (listDateObj >= fiveDaysAgo && listDateObj < currentDate) {
+            
+            // CORREÇÃO 2 (cont.): Comparação em minúsculas
             const hasSong = list.songs.some(song => 
-                `${song.origem}-${song.numero || song.titulo}` === songId
+                `${song.origem}-${song.numero || song.titulo.toLowerCase()}` === songId
             );
             
             if (hasSong) {
                 const daysAgo = Math.floor((currentDate - listDateObj) / (1000 * 60 * 60 * 24));
                 const formattedDate = formatDateForDisplay(list.date);
                 
-                // Toast informativo ao invés de confirm
                 const dayText = daysAgo === 0 ? 'hoje' : daysAgo === 1 ? 'ontem' : `há ${daysAgo} dias`;
-                showToast(`ℹ️ Este louvor foi cantado ${dayText} (${formattedDate})`, 'info', 5000);
                 
-                // Ainda adiciona, mas informa ao usuário
-                return true;
+                // MUDANÇA SOLICITADA: Usar confirm()
+                const confirmation = confirm(
+                    `ATENÇÃO: Este louvor foi cantado ${dayText} (${formattedDate}).\n\nDeseja adicionar mesmo assim?`
+                );
+                return confirmation; // Retorna true (adiciona) ou false (cancela)
             }
         }
     }
 
-    return true;
+    return true; // Não encontrou em listas recentes, permitir adicionar
 }
+
 
 function addSongToList(songData) {
     const uniqueId = `${songData.origem}-${songData.numero || songData.titulo.toLowerCase()}`;
@@ -461,7 +474,10 @@ function addSongToList(songData) {
         return;
     }
 
-    if (!checkRecentSong(songData)) return;
+    // Agora esta verificação pode retornar 'false' se o usuário cancelar
+    if (!checkRecentSong(songData)) {
+        return; // Usuário cancelou a adição do louvor recente
+    }
     
     selectedSongs.push(songData);
     updateSelectedList();
