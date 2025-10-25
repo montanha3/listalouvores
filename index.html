@@ -2,146 +2,176 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Lista de Louvores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lista de Louvores</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
+        <!-- Header Compacto -->
         <header class="app-header">
-            <h1>📖 Gerador de Lista de Louvores</h1>
-            <p class="subtitle">Crie e compartilhe suas listas de louvores</p>
+            <h1>📖 Lista de Louvores</h1>
         </header>
 
-        <div class="search-section card">
-            <h2 class="section-title">🔍 Buscar Louvores</h2>
+        <!-- Seção de Busca -->
+        <div id="searchSection" class="section active">
+            <div class="search-section card">
+                <h2 class="section-title">🔍 Buscar</h2>
 
-            <div class="source-selector">
-                <label class="source-label">Buscar em:</label>
-                <label class="radio-option">
-                    <input type="radio" name="source" id="sourceIgreja" value="Igreja">
-                    <span>Igreja</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="source" id="sourceCias" value="CIAS">
-                    <span>CIAS</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="source" id="sourceAvulsos" value="Avulsos">
-                    <span>Avulsos</span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="source" id="sourceTodas" value="Todas" checked>
-                    <span>Todas</span>
-                </label>
-            </div>
-
-            <div class="search-input-wrapper">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Digite o número ou título do louvor..."
-                    autocomplete="off"
-                >
-                <span class="search-icon">🔎</span>
-            </div>
-
-            <div id="searchResults"></div>
-        </div>
-
-        <div class="list-section card">
-            <div class="list-header">
-                <div class="list-header-left">
-                    <h2 class="section-title">📝 Lista Selecionada</h2>
-                    <span id="songCounter" class="song-counter">0 louvores</span>
+                <div class="source-selector">
+                    <label class="radio-option">
+                        <input type="radio" name="source" id="sourceIgreja" value="Igreja">
+                        <span>Igreja</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="source" id="sourceCias" value="CIAS">
+                        <span>CIAS</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="source" id="sourceAvulsos" value="Avulsos">
+                        <span>Avulsos</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="source" id="sourceTodas" value="Todas" checked>
+                        <span>Todas</span>
+                    </label>
                 </div>
-                <div class="list-header-right">
+
+                <div class="search-type-selector">
+                    <label class="radio-option">
+                        <input type="radio" name="searchType" id="searchByTitle" value="title" checked>
+                        <span>Por Título/Número</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="searchType" id="searchByLyrics" value="lyrics">
+                        <span>Por Letra</span>
+                    </label>
+                </div>
+
+                <div class="search-input-wrapper">
                     <input
-                        type="date"
-                        id="listDate"
-                        class="date-input"
-                        title="Data da lista"
+                        type="text"
+                        id="searchInput"
+                        placeholder="Digite número, título ou palavra da letra..."
+                        autocomplete="off"
                     >
-                    <button id="clearListBtn" class="btn btn-secondary" title="Limpar toda a lista">
-                        🗑️ Limpar Lista
-                    </button>
+                    <span class="search-icon">🔎</span>
                 </div>
+
+                <div id="searchResults"></div>
             </div>
 
-            <ul id="songList"></ul>
-
-            <div class="export-section" id="exportSection" style="display: none;">
-                <h3 class="export-title">📤 Compartilhar Lista</h3>
-
-                <div class="export-options">
-                    <div class="export-type">
-                        <label class="radio-option">
-                            <input type="radio" name="exportType" value="titles" checked>
-                            <span>Apenas Títulos</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="exportType" value="lyrics">
-                            <span>Com Letras</span>
-                        </label>
+            <div class="list-section card">
+                <div class="list-header">
+                    <div class="list-header-left">
+                        <h2 class="section-title">📝 Lista</h2>
+                        <span id="songCounter" class="song-counter">0 louvores</span>
+                    </div>
+                    <div class="list-header-right">
+                        <input
+                            type="date"
+                            id="listDate"
+                            class="date-input"
+                            title="Data da lista"
+                        >
+                        <button id="clearListBtn" class="btn btn-secondary btn-small" title="Limpar lista">
+                            🗑️ Limpar
+                        </button>
                     </div>
                 </div>
 
-                <div class="export-buttons">
-                    <button id="exportImageBtn" class="btn btn-primary">
-                        🖼️ Gerar Imagem
-                    </button>
-                    <button id="exportTextBtn" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
-                          <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
-                        </svg> Enviar Texto (WhatsApp)
-                    </button>
-                    <button id="exportLyricsBtn" class="btn btn-secondary" style="display: none;">
-                        📝 Copiar Letras Individuais
-                    </button>
+                <ul id="songList"></ul>
+
+                <div class="export-section" id="exportSection" style="display: none;">
+                    <h3 class="export-title">📤 Compartilhar</h3>
+
+                    <div class="export-options">
+                        <div class="export-type">
+                            <label class="radio-option">
+                                <input type="radio" name="exportType" value="titles" checked>
+                                <span>Títulos</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="exportType" value="lyrics">
+                                <span>Com Letras</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button id="exportImageBtn" class="btn btn-primary">
+                            🖼️ Imagem
+                        </button>
+                        <button id="exportTextBtn" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+                              <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                            </svg> WhatsApp
+                        </button>
+                        <button id="exportLyricsBtn" class="btn btn-secondary" style="display: none;">
+                            📋 Copiar Individual
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="saved-lists-section card">
-            <h2 class="section-title">💾 Listas Salvas (Firebase)</h2>
-            <div class="saved-lists-controls">
-                <input
-                    type="text"
-                    id="listNameInput"
-                    placeholder="Nome da lista..."
-                    class="list-name-input"
-                >
-                <button id="saveListBtn" class="btn btn-success">
-                    💾 Salvar Lista
-                </button>
+        <!-- Seção de Listas Salvas -->
+        <div id="savedSection" class="section">
+            <div class="saved-lists-section card">
+                <h2 class="section-title">💾 Listas Salvas</h2>
+                <div class="saved-lists-controls">
+                    <input
+                        type="text"
+                        id="listNameInput"
+                        placeholder="Nome da lista..."
+                        class="list-name-input"
+                    >
+                    <button id="saveListBtn" class="btn btn-success">
+                        💾 Salvar
+                    </button>
+                </div>
+                <div id="savedListsContainer"><div class="empty-message">Carregando...</div></div>
             </div>
-            <div id="savedListsContainer"><div class="empty-message">Carregando listas...</div></div>
         </div>
     </div>
 
+    <!-- Menu Inferior -->
+    <nav class="bottom-menu">
+        <button class="menu-item active" data-section="searchSection">
+            <span class="menu-icon">🔍</span>
+            <span class="menu-label">Buscar</span>
+        </button>
+        <button class="menu-item" data-section="savedSection">
+            <span class="menu-icon">💾</span>
+            <span class="menu-label">Salvas</span>
+        </button>
+    </nav>
+
+    <!-- Modal de Imagem -->
     <div id="imageModal" class="modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
-            <h3>Imagem da Lista de Louvores</h3>
+            <h3>Imagem da Lista</h3>
             <canvas id="listCanvas"></canvas>
             <div class="modal-buttons">
                 <button id="downloadImageBtn" class="btn btn-primary">
-                    ⬇️ Baixar Imagem
+                    ⬇️ Baixar
                 </button>
                 <button id="shareImageBtn" class="btn btn-success">
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
                      <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
-                   </svg> Compartilhar Imagem (WhatsApp)
+                   </svg> WhatsApp
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Letras -->
     <div id="lyricsModal" class="modal">
         <div class="modal-content lyrics-modal-content">
             <span class="modal-close">&times;</span>
-            <h3>Copiar Letras Individuais</h3>
-            <p class="lyrics-instructions">Clique em cada louvor para copiar seu título e letra (formatado para WhatsApp):</p>
+            <h3>Copiar Letras</h3>
+            <p class="lyrics-instructions">Toque em cada louvor para copiar:</p>
             <div id="lyricsListContainer"></div>
         </div>
     </div>
@@ -154,13 +184,12 @@
 
       // Your web app's Firebase configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyD6dCUtxTRcRPTyKwI0Qh9_xspFHC7H9Wg", // MANTENHA A SUA CHAVE AQUI
+        apiKey: "AIzaSyD6dCUtxTRcRPTyKwI0Qh9_xspFHC7H9Wg",
         authDomain: "lista-louvor.firebaseapp.com",
         projectId: "lista-louvor",
-        storageBucket: "lista-louvor.appspot.com", // Verifique se é .appspot.com ou .firebasestorage.app
+        storageBucket: "lista-louvor.appspot.com",
         messagingSenderId: "963431428345",
         appId: "1:963431428345:web:745121457ddf8b177f3228",
-        // Adiciona a URL do seu Realtime Database
         databaseURL: "https://lista-louvor-default-rtdb.firebaseio.com/"
       };
 
@@ -171,7 +200,6 @@
       const database = getDatabase(app);
 
       // Make database and functions accessible globally for script.js
-      // Isso permite que o script.js use as funções importadas aqui
       window.firebaseDb = { database, ref, set, push, onValue, remove };
 
     </script>
