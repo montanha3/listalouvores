@@ -36,7 +36,11 @@ body {
     color: var(--text-dark);
     font-size: 14px;
     -webkit-tap-highlight-color: transparent;
-    touch-action: pan-y;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 /* Tela de Seleção de Igreja */
@@ -119,59 +123,50 @@ body {
     color: var(--text-medium);
 }
 
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* Header Compacto */
+/* Header */
 .app-header {
-    text-align: center;
-    margin-bottom: 15px;
     background: var(--bg-white);
     padding: 12px 15px;
     border-radius: 10px;
     box-shadow: var(--shadow-sm);
-    position: relative;
-}
-
-.header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    margin-bottom: 15px;
 }
 
 .app-header h1 {
     color: var(--primary-dark);
     font-size: 1.3rem;
     font-weight: 600;
-    margin: 0;
+    margin: 0 0 8px 0;
+    text-align: center;
+}
+
+.church-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .current-church {
     color: var(--text-medium);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 500;
+    flex: 1;
 }
 
 .btn-change-church {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
+    background: var(--bg-light);
     border: 1px solid var(--border-color);
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 6px;
-    font-size: 0.75rem;
-    color: var(--text-medium);
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .btn-change-church:active {
-    background: var(--bg-light);
+    background: #e3f2fd;
     border-color: var(--primary-color);
     color: var(--primary-color);
 }
@@ -265,11 +260,11 @@ body {
 .search-icon {
     position: absolute;
     right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 12px;
     font-size: 1.1rem;
     color: var(--text-light);
     pointer-events: none;
+    z-index: 1;
 }
 
 #searchInput {
@@ -290,8 +285,9 @@ body {
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
 }
 
+/* CORRIGIDO: Lista de resultados limitada */
 #searchResults {
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid var(--border-color);
     border-top: none;
@@ -299,9 +295,10 @@ body {
     background: var(--bg-white);
     display: none;
     position: absolute;
-    width: 100%;
-    z-index: 10;
+    width: calc(100% - 30px);
+    z-index: 100;
     box-shadow: var(--shadow-md);
+    margin-top: -1px;
 }
 
 #searchResults:not(:empty) {
@@ -411,6 +408,7 @@ body {
     padding-left: 0;
 }
 
+/* CORRIGIDO: Removido drag nativo, adicionado botão de reordenar */
 #songList li {
     padding: 10px 8px 10px 12px;
     margin-bottom: 6px;
@@ -422,24 +420,6 @@ body {
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease-out;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-}
-
-#songList li.dragging {
-    opacity: 0.5;
-    transform: scale(1.02);
-    box-shadow: var(--shadow-lg);
-}
-
-#songList li.drag-over {
-    border-top: 3px solid var(--primary-color);
-    margin-top: 10px;
-}
-
-#songList li:active {
-    cursor: grabbing;
 }
 
 #songList li .song-info {
@@ -449,7 +429,6 @@ body {
     gap: 6px;
     margin-right: 5px;
     overflow: hidden;
-    pointer-events: none;
 }
 
 #songList li .song-number {
@@ -475,16 +454,21 @@ body {
     white-space: nowrap;
 }
 
+.song-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
 .remove-btn {
     background: none;
     border: none;
     color: var(--danger-color);
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 6px;
+    padding: 4px 6px;
     line-height: 1;
     transition: transform 0.2s ease, color 0.2s ease;
-    flex-shrink: 0;
     min-width: 32px;
     min-height: 32px;
     display: flex;
@@ -495,6 +479,29 @@ body {
 .remove-btn:active {
     transform: scale(0.9);
     color: var(--danger-dark);
+}
+
+/* Botão de reordenar */
+.reorder-btn {
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-medium);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reorder-btn:active {
+    background: #e3f2fd;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 /* Export Section */
@@ -532,7 +539,7 @@ body {
     gap: 6px;
     white-space: nowrap;
     flex: 1;
-    min-width: 120px;
+    min-width: 110px;
 }
 
 .btn:active {
@@ -586,6 +593,85 @@ body {
     height: 16px;
 }
 
+/* Form Styles */
+.add-song-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.form-input,
+.form-textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Custom Songs List */
+#customSongsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.custom-song-item {
+    padding: 12px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.custom-song-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.custom-song-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.custom-song-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.custom-song-info {
+    color: var(--text-medium);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
 /* Saved Lists */
 #savedListsContainer {
     display: flex;
@@ -598,7 +684,6 @@ body {
     background: var(--bg-light);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    transition: box-shadow 0.2s ease;
 }
 
 .saved-list-name {
@@ -620,7 +705,7 @@ body {
     gap: 8px;
 }
 
-/* Reports Section */
+/* Reports */
 .report-card {
     background: var(--bg-light);
     border: 1px solid var(--border-color);
@@ -721,7 +806,7 @@ body {
 }
 
 .menu-icon {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
 }
 
 .menu-label {
@@ -820,6 +905,45 @@ body {
     flex-wrap: wrap;
 }
 
+/* Reorder Modal */
+.reorder-instructions {
+    text-align: center;
+    color: var(--text-medium);
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+}
+
+#reorderList {
+    list-style: none;
+    padding: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+#reorderList li {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+#reorderList li:active {
+    cursor: grabbing;
+}
+
+#reorderList li.dragging {
+    opacity: 0.5;
+}
+
+#reorderList li.drag-over {
+    border-top: 3px solid var(--warning-color);
+}
+
 /* Empty Message */
 .empty-message {
     text-align: center;
@@ -842,7 +966,6 @@ body {
     z-index: 2000;
     font-size: 0.85rem;
     opacity: 0;
-    transition: opacity 0.4s ease-out;
     text-align: center;
     min-width: 200px;
     max-width: 85%;
@@ -868,7 +991,7 @@ input:disabled, button:disabled {
     opacity: 0.6;
 }
 
-/* Ajustes para telas muito pequenas */
+/* Responsive */
 @media (max-width: 360px) {
     body {
         font-size: 13px;
@@ -883,26 +1006,13 @@ input:disabled, button:disabled {
         font-size: 1rem;
     }
     
-    .radio-option {
-        padding: 5px 8px;
-        font-size: 0.75rem;
-    }
-    
     .btn {
         padding: 8px 12px;
         font-size: 0.8rem;
         min-width: 100px;
     }
-
-    .btn-change-church {
-        position: static;
-        transform: none;
-        margin-top: 8px;
-        width: 100%;
-    }
 }
 
-/* Melhorias para touch */
 @media (hover: none) and (pointer: coarse) {
     .btn, .menu-item, .remove-btn {
         min-height: 44px;
