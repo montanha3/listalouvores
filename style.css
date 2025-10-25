@@ -5,140 +5,130 @@
 }
 
 :root {
-    --primary-color: #2196F3; /* Azul primário */
-    --primary-dark: #1976D2;  /* Azul mais escuro */
-    --success-color: #4CAF50; /* Verde sucesso */
-    --success-dark: #388E3C;  /* Verde mais escuro */
-    --danger-color: #f44336;  /* Vermelho perigo */
-    --danger-dark: #d32f2f;   /* Vermelho mais escuro */
-    --warning-color: #FF9800; /* Laranja aviso */
-    --text-dark: #333;        /* Texto escuro */
-    --text-medium: #666;      /* Texto médio */
-    --text-light: #999;       /* Texto claro */
-    --bg-light: #f5f7fa;      /* Fundo claro (quase branco) */
-    --bg-white: #ffffff;      /* Fundo branco */
-    --border-color: #e0e0e0;   /* Cor da borda */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra pequena */
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Sombra média */
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12); /* Sombra grande */
+    --primary-color: #2196F3;
+    --primary-dark: #1976D2;
+    --success-color: #4CAF50;
+    --success-dark: #388E3C;
+    --danger-color: #f44336;
+    --danger-dark: #d32f2f;
+    --warning-color: #FF9800;
+    --text-dark: #333;
+    --text-medium: #666;
+    --text-light: #999;
+    --bg-light: #f5f7fa;
+    --bg-white: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
 html {
-    scroll-behavior: smooth; /* Rolagem suave */
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Fontes padrão do sistema */
-    /* Gradiente suave de fundo */
-    background: linear-gradient(135deg, #e9f5ff 0%, #e8eaf6 100%); /* Fundo mais claro e suave */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #e9f5ff 0%, #e8eaf6 100%);
     min-height: 100vh;
-    padding: 20px;
-    line-height: 1.6;
-    color: var(--text-dark); /* Cor de texto padrão */
-    -webkit-tap-highlight-color: transparent; /* Remove highlight azul no toque (iOS) */
+    padding: 10px 10px 70px 10px; /* Padding inferior para o menu */
+    line-height: 1.5;
+    color: var(--text-dark);
+    font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
-/* Header */
+/* Header Compacto */
 .app-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     background: var(--bg-white);
-    padding: 30px 20px; /* Ajuste padding */
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
+    padding: 12px 15px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
 }
 
 .app-header h1 {
-    color: var(--primary-dark); /* Cor do título */
-    font-size: 2.3rem; /* Levemente menor */
-    margin-bottom: 10px;
-    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-.subtitle {
-    color: var(--text-medium);
-    font-size: 1.05rem; /* Levemente menor */
+/* Seções */
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
 }
 
 /* Cards */
 .card {
     background: var(--bg-white);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm); /* Sombra mais sutil por padrão */
-    margin-bottom: 25px;
-    transition: box-shadow 0.3s ease;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 15px;
 }
-/* Efeito de elevação sutil no hover */
-/* .card:hover {
-    box-shadow: var(--shadow-lg);
-} */
-
 
 .section-title {
     color: var(--primary-dark);
-    font-size: 1.4rem; /* Reduzido */
-    margin-bottom: 20px;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
-    border-bottom: 2px solid var(--primary-color); /* Linha abaixo do título */
-    padding-bottom: 8px;
+    gap: 6px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 6px;
 }
 
 /* Search Section */
-.search-section {
-    position: relative;
-}
-
-.source-selector {
+.source-selector,
+.search-type-selector {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 8px;
     background: var(--bg-light);
     border-radius: 8px;
     flex-wrap: wrap;
-    border: 1px solid var(--border-color); /* Borda sutil */
-}
-
-.source-label {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-right: 5px;
-    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    gap: 6px; /* Aumentado um pouco */
+    gap: 4px;
     cursor: pointer;
-    padding: 8px 14px; /* Aumentado padding para toque */
-    border-radius: 20px;
+    padding: 6px 10px;
+    border-radius: 16px;
     transition: all 0.2s ease;
     background: var(--bg-white);
     border: 1px solid var(--border-color);
     user-select: none;
+    font-size: 0.85rem;
 }
 
-.radio-option:hover {
+.radio-option:active {
     background: #e3f2fd;
     border-color: var(--primary-color);
 }
 
 .radio-option input[type="radio"] {
     cursor: pointer;
-    width: 18px; /* Tamanho maior para toque */
-    height: 18px;
+    width: 16px;
+    height: 16px;
     accent-color: var(--primary-color);
+    margin: 0;
 }
 
 .radio-option input[type="radio"]:checked + span {
@@ -148,51 +138,51 @@ body {
 
 .radio-option span {
     color: var(--text-dark);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .search-input-wrapper {
     position: relative;
-    margin-bottom: 5px; /* Reduzida margem inferior */
+    margin-bottom: 5px;
 }
 
 .search-icon {
     position: absolute;
-    right: 15px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--text-light);
     pointer-events: none;
 }
 
 #searchInput {
     width: 100%;
-    padding: 14px 45px 14px 15px; /* Aumentado padding vertical */
-    font-size: 1rem;
+    padding: 12px 40px 12px 12px;
+    font-size: 0.95rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
     transition: all 0.3s ease;
     background: var(--bg-white);
-    appearance: none; /* Remove estilos padrão do iOS */
+    appearance: none;
     -webkit-appearance: none;
 }
 
 #searchInput:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
 }
 
 #searchResults {
-    max-height: 45vh; /* Altura máxima baseada na tela */
+    max-height: 300px;
     overflow-y: auto;
     border: 1px solid var(--border-color);
-    border-top: none; /* Remove borda superior para colar no input */
-    border-radius: 0 0 8px 8px; /* Arredonda cantos inferiores */
+    border-top: none;
+    border-radius: 0 0 8px 8px;
     background: var(--bg-white);
-    display: none; /* Começa escondido */
-    position: absolute; /* Sobrepõe */
+    display: none;
+    position: absolute;
     width: 100%;
     z-index: 10;
     box-shadow: var(--shadow-md);
@@ -202,44 +192,38 @@ body {
     display: block;
 }
 
-
 .search-result-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f0f0f0; /* Linha divisória mais sutil */
+    padding: 10px 12px;
+    border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .search-result-item:last-child {
     border-bottom: none;
 }
 
-.search-result-item:hover {
-    background: #eef7ff; /* Azul ainda mais claro no hover */
-}
-.search-result-item:active { /* Feedback no toque */
-     background-color: #d1e7fd;
+.search-result-item:active {
+    background-color: #e3f2fd;
 }
 
 .search-result-item .song-number {
     font-weight: 600;
     color: var(--primary-dark);
-    min-width: 55px;
-    font-size: 1rem;
+    min-width: 40px;
+    font-size: 0.9rem;
     text-align: right;
-    padding-right: 5px;
-    flex-shrink: 0; /* Impede que encolha */
+    flex-shrink: 0;
 }
 
 .search-result-item .song-origin {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-medium);
-    font-style: italic;
     background: #eceff1;
-    padding: 2px 6px;
+    padding: 2px 5px;
     border-radius: 4px;
     white-space: nowrap;
     flex-shrink: 0;
@@ -248,10 +232,10 @@ body {
 .search-result-item .song-title {
     flex-grow: 1;
     color: var(--text-dark);
-    font-size: 0.95rem;
-    overflow: hidden; /* Evita que texto longo quebre o layout */
-    text-overflow: ellipsis; /* Adiciona "..." se não couber */
-    white-space: nowrap; /* Impede quebra de linha no título */
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* List Section */
@@ -259,45 +243,45 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
 }
 
 .list-header-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     flex-grow: 1;
 }
 
 .list-header-right {
     display: flex;
-    gap: 10px;
+    gap: 6px;
     align-items: center;
     flex-wrap: wrap;
 }
 
 .song-counter {
-    background: var(--primary-light, #bbdefb); /* Cor de fundo mais clara */
-    color: var(--primary-dark); /* Texto escuro */
-    padding: 5px 12px; /* Ajustado */
-    border-radius: 16px;
-    font-size: 0.9rem; /* Aumentado um pouco */
+    background: #bbdefb;
+    color: var(--primary-dark);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
-    border: 1px solid var(--primary-color); /* Borda sutil */
+    border: 1px solid var(--primary-color);
 }
 
 .date-input {
-    padding: 9px 12px; /* Aumentado padding vertical */
+    padding: 7px 10px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: border-color 0.3s ease;
-    min-width: 140px; /* Largura mínima */
-    appearance: none; /* Remove estilos padrão iOS */
+    min-width: 120px;
+    appearance: none;
     -webkit-appearance: none;
 }
 
@@ -308,291 +292,279 @@ body {
 
 #songList {
     list-style: none;
-    min-height: 100px;
+    min-height: 80px;
     padding-left: 0;
 }
 
 #songList li {
-    padding: 12px 10px 12px 15px; /* Ajuste padding (menos à direita) */
-    margin-bottom: 8px;
-    background: #fdfdfd; /* Fundo quase branco */
+    padding: 10px 8px 10px 12px;
+    margin-bottom: 6px;
+    background: #fdfdfd;
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--primary-color); /* Borda esquerda colorida */
-    border-radius: 6px; /* Menos arredondado */
+    border-left: 3px solid var(--primary-color);
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease-out;
     cursor: grab;
 }
+
 #songList li:active {
     cursor: grabbing;
-    background: #f0f0f0; /* Fundo cinza ao arrastar */
+    background: #f0f0f0;
 }
-
-
-#songList li:hover {
-    border-left-color: var(--primary-dark); /* Borda escurece no hover */
-    box-shadow: var(--shadow-sm);
-}
-
 
 #songList li .song-info {
     flex-grow: 1;
     display: flex;
-    align-items: baseline; /* Alinha pela base do texto */
-    gap: 8px;
-    margin-right: 5px; /* Reduzido espaço antes das ações */
-    overflow: hidden; /* Previne overflow */
+    align-items: baseline;
+    gap: 6px;
+    margin-right: 5px;
+    overflow: hidden;
 }
 
 #songList li .song-number {
     font-weight: 600;
     color: var(--primary-dark);
-    min-width: 55px;
-    font-size: 1rem;
+    min-width: 40px;
+    font-size: 0.9rem;
     text-align: right;
-    padding-right: 5px;
-    flex-shrink: 0; /* Não encolhe */
-}
-#songList li .song-number.no-number {
-    min-width: 55px;
-}
-
-
-#songList li .song-title {
-    color: var(--text-dark);
-    font-size: 1rem; /* Tamanho maior para leitura */
-    white-space: nowrap;      /* Não quebra linha */
-    overflow: hidden;         /* Esconde o que não cabe */
-    text-overflow: ellipsis;  /* Mostra '...' */
-    flex-grow: 1;             /* Ocupa espaço */
-}
-
-#songList li .song-origin-list {
-    font-size: 0.8em;
-    color: var(--text-light);
-    margin-left: 5px;
-    font-style: italic;
-    white-space: nowrap;
     flex-shrink: 0;
 }
 
-
-.list-actions {
-    display: flex;
-    align-items: center; /* Centraliza verticalmente */
-    gap: 0; /* Remove gap */
-    flex-shrink: 0; /* Não encolhe */
+#songList li .song-number.no-number {
+    min-width: 0;
+    display: none;
 }
 
-/* Botão Remover na Lista */
+#songList li .song-title {
+    flex-grow: 1;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .remove-btn {
     background: none;
     border: none;
     color: var(--danger-color);
-    font-size: 1.6rem; /* Ícone maior */
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 6px;
     line-height: 1;
-    padding: 10px; /* AUMENTA ÁREA DE TOQUE */
-    margin: -10px -5px -10px 0; /* Compensa padding sem afetar layout */
-    cursor: pointer;
-    transition: color 0.2s ease;
-    border-radius: 50%; /* Faz área de toque circular */
-}
-.remove-btn:hover {
-    color: var(--danger-dark);
-    background-color: rgba(244, 67, 54, 0.1); /* Fundo vermelho sutil no hover */
-    box-shadow: none;
-    transform: none;
-}
-.remove-btn:active {
-     background-color: rgba(244, 67, 54, 0.2);
-}
-
-
-/* Feedback visual para Drag and Drop */
-#songList li.dragging {
-    opacity: 0.4;
-    border-style: dashed;
-    background-color: #f0f0f0;
-}
-#songList li.drag-over {
-    /* Linha sutil acima para indicar onde vai soltar */
-    border-top: 3px solid var(--primary-dark);
-    background-color: #e3f2fd;
-    /* Move os outros itens levemente para baixo (pode causar 'pulos') */
-    /* transform: translateY(3px); */
-}
-
-
-/* Botões Gerais */
-.btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    transition: all 0.2s ease-out;
-    display: inline-flex;
+    transition: transform 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
     align-items: center;
-    gap: 8px;
     justify-content: center;
-    text-align: center;
-    white-space: nowrap;
-    line-height: 1.4; /* Melhora altura do botão */
-    -webkit-tap-highlight-color: rgba(0,0,0,0.1); /* Feedback visual no toque */
-}
-.btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-.btn:active:not(:disabled) {
-    transform: translateY(0px);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    filter: brightness(0.95); /* Escurece levemente no clique */
-}
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
 }
 
-
-.btn-primary { background: var(--primary-color); color: white; }
-.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
-
-.btn-success { background: var(--success-color); color: white; }
-.btn-success:hover:not(:disabled) { background: var(--success-dark); }
-
-.btn-secondary { background: var(--text-medium); color: white; }
-.btn-secondary:hover:not(:disabled) { background: var(--text-dark); }
-
-.btn-danger { background: var(--danger-color); color: white; }
-.btn-danger:hover:not(:disabled) { background: var(--danger-dark); }
-
-.btn-small { padding: 6px 12px; font-size: 0.85rem; gap: 4px; }
-
-.btn svg {
-    vertical-align: middle;
-    width: 1em; /* Garante tamanho consistente do ícone */
-    height: 1em;
+.remove-btn:active {
+    transform: scale(0.9);
+    color: var(--danger-dark);
 }
-
 
 /* Export Section */
 .export-section {
-    margin-top: 30px;
-    padding: 20px;
-    background: var(--bg-light);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
 }
 
 .export-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--primary-dark);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-weight: 600;
 }
 
 .export-options {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .export-type {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .export-buttons {
     display: flex;
-    gap: 12px; /* Aumentado gap */
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-/* Saved Lists Section */
-.saved-lists-section .section-title {
-    color: var(--success-dark);
-    border-bottom-color: var(--success-color);
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
 }
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:active {
+    background: var(--primary-dark);
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:active {
+    background: var(--success-dark);
+}
+
+.btn-secondary {
+    background: #9E9E9E;
+    color: white;
+}
+
+.btn-secondary:active {
+    background: #757575;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:active {
+    background: var(--danger-dark);
+}
+
+.btn-small {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Saved Lists */
 .saved-lists-controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
 }
 
 .list-name-input {
     flex-grow: 1;
-    padding: 11px 15px; /* Aumentado padding */
+    padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 1rem; /* Tamanho maior */
-    min-width: 150px;
-    appearance: none; /* Remove estilos padrão iOS */
-    -webkit-appearance: none;
+    font-size: 0.9rem;
+    min-width: 200px;
+    outline: none;
+    transition: border-color 0.3s ease;
 }
 
 .list-name-input:focus {
-    border-color: var(--success-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    border-color: var(--primary-color);
 }
 
 #savedListsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .saved-list-item {
-    padding: 15px;
-    background: #f1f8e9;
-    border: 1px solid #c8e6c9;
-    border-left: 4px solid var(--success-color); /* Borda esquerda verde */
-    border-radius: 6px;
-    transition: all 0.2s ease-out;
-    display: flex;
-    flex-direction: column;
-}
-
-.saved-list-item:hover {
-    border-color: var(--success-dark);
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-2px);
+    padding: 12px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease;
 }
 
 .saved-list-name {
     font-weight: 600;
-    color: var(--success-dark);
-    margin-bottom: 8px;
-    font-size: 1.05rem;
-    word-break: break-word;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    font-size: 1rem;
 }
 
 .saved-list-info {
-    font-size: 0.85rem;
     color: var(--text-medium);
-    margin-bottom: 12px;
-    flex-grow: 1;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    line-height: 1.5;
 }
-.saved-list-info span, .saved-list-info small {
-    display: block;
-    line-height: 1.4;
-}
-.saved-list-info small {
-    color: var(--text-light);
-    margin-top: 4px;
-}
-
 
 .saved-list-actions {
     display: flex;
     gap: 8px;
-    margin-top: auto;
+}
+
+/* Menu Inferior */
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.menu-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-medium);
+}
+
+.menu-item.active {
+    color: var(--primary-color);
+}
+
+.menu-item:active {
+    transform: scale(0.95);
+}
+
+.menu-icon {
+    font-size: 1.5rem;
+}
+
+.menu-label {
+    font-size: 0.7rem;
+    font-weight: 500;
 }
 
 /* Modal */
@@ -621,10 +593,9 @@ body {
     to { opacity: 1; }
 }
 
-
 .modal-content {
     background: var(--bg-white);
-    padding: 25px 30px;
+    padding: 20px;
     border-radius: 10px;
     max-width: 90%;
     width: auto;
@@ -640,40 +611,44 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-
 .lyrics-modal-content {
-    max-width: 600px;
+    max-width: 500px;
     width: 90%;
 }
 
 .modal-close {
     position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 1.8rem;
+    right: 12px;
+    top: 12px;
+    font-size: 1.6rem;
     font-weight: bold;
     cursor: pointer;
     color: var(--text-light);
     transition: color 0.2s;
     line-height: 1;
-    padding: 5px; /* Área de toque maior */
+    padding: 5px;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.modal-close:hover {
+.modal-close:active {
     color: var(--danger-color);
 }
 
 .modal h3 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: var(--primary-dark);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     text-align: center;
 }
 
 #listCanvas {
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    margin: 20px auto;
+    margin: 15px auto;
     display: block;
     max-width: 100%;
     height: auto;
@@ -682,57 +657,51 @@ body {
 
 .modal-buttons {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     justify-content: center;
-    margin-top: 25px;
+    margin-top: 15px;
     flex-wrap: wrap;
 }
 
-/* Modal de Letras */
 .lyrics-instructions {
     color: var(--text-medium);
-    margin-bottom: 20px;
-    font-size: 0.95rem;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
     text-align: center;
 }
 
 #lyricsListContainer {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     max-height: 60vh;
     overflow-y: auto;
-    padding-right: 5px;
 }
 
 .lyrics-item {
-    padding: 12px 15px;
+    padding: 10px 12px;
     background: var(--bg-light);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-left: 4px solid var(--success-color); /* Borda esquerda verde */
+    border-left: 3px solid var(--success-color);
 }
 
-.lyrics-item:hover {
-    border-color: var(--success-dark);
-    background: #e8f5e9;
-    transform: translateX(3px);
-}
 .lyrics-item:active {
-     background-color: #c8e6c9;
+    background-color: #c8e6c9;
+    transform: translateX(2px);
 }
 
 .lyrics-item-header {
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 5px;
-    font-size: 1rem;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
 }
 
 .lyrics-item-hint {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-light);
 }
 
@@ -740,28 +709,28 @@ body {
 .empty-message {
     text-align: center;
     color: var(--text-light);
-    padding: 30px 20px;
+    padding: 20px;
     font-style: italic;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
-/* --- Estilos do Toast --- */
+/* Toast */
 .toast {
     position: fixed;
-    bottom: 25px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     color: white;
-    padding: 12px 25px;
+    padding: 10px 20px;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     z-index: 2000;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     opacity: 0;
-    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    transition: opacity 0.4s ease-out;
     text-align: center;
-    min-width: 250px;
-    max-width: 90%;
+    min-width: 200px;
+    max-width: 85%;
     animation: toastIn 0.4s ease-out forwards;
 }
 
@@ -770,170 +739,53 @@ body {
     to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Cores do Toast */
 .toast-success { background-color: var(--success-color); }
-.toast-error   { background-color: var(--danger-color); }
+.toast-error { background-color: var(--danger-color); }
 .toast-warning { background-color: var(--warning-color); }
-.toast-info    { background-color: var(--primary-color); }
+.toast-info { background-color: var(--primary-color); }
 
-
-/* Estilo adicional para inputs desabilitados */
+/* Disabled */
 input:disabled, button:disabled {
-    background-color: #eeeeee !important; /* Força fundo cinza */
-    border-color: #dddddd !important; /* Borda cinza */
-    color: #aaaaaa !important; /* Texto cinza claro */
+    background-color: #eeeeee !important;
+    border-color: #dddddd !important;
+    color: #aaaaaa !important;
     cursor: not-allowed;
-    opacity: 0.7;
-    box-shadow: none;
-    transform: none;
+    opacity: 0.6;
 }
 
-
-/* --- Media Queries para Responsividade --- */
-
-/* Telas menores (tablets e celulares grandes em paisagem) */
-@media (max-width: 768px) {
+/* Ajustes para telas muito pequenas */
+@media (max-width: 360px) {
     body {
-        padding: 15px; /* Aumenta padding lateral */
+        font-size: 13px;
+        padding: 8px 8px 70px 8px;
     }
-
+    
     .app-header h1 {
-        font-size: 1.8rem; /* Reduz tamanho do título principal */
+        font-size: 1.1rem;
     }
-     .subtitle {
+    
+    .section-title {
         font-size: 1rem;
     }
-
-    .card {
-        padding: 20px; /* Reduz padding interno dos cards */
+    
+    .radio-option {
+        padding: 5px 8px;
+        font-size: 0.75rem;
     }
-    .section-title {
-        font-size: 1.3rem; /* Reduz títulos de seção */
-    }
-
-    /* Ajusta header da lista */
-    .list-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .list-header-left, .list-header-right {
-        width: 100%;
-        justify-content: space-between;
-    }
-     .list-header-right {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px; /* Reduz gap entre data e botão limpar */
-    }
-    .date-input,
-    #clearListBtn {
-        width: 100%;
-    }
-
-
-    /* Botões de exportação em coluna */
-    .export-buttons {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px; /* Reduz gap */
-    }
-    .export-buttons .btn {
-        width: 100%;
-    }
-
-    .saved-lists-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    #savedListsContainer {
-        grid-template-columns: 1fr; /* Uma coluna */
-    }
-
-    /* Modal com mais largura */
-    .modal-content {
-        width: 95%;
-        max-width: 95%;
-        padding: 20px;
-    }
-    .modal h3 {
-        font-size: 1.3rem;
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
     }
 }
 
-/* Telas ainda menores (celulares em retrato) */
-@media (max-width: 480px) {
-    body {
-        padding: 10px; /* Reduz ainda mais */
-        font-size: 15px; /* Ajusta tamanho base da fonte */
+/* Melhorias para touch */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .menu-item, .remove-btn {
+        min-height: 44px;
     }
-    .app-header h1 {
-        font-size: 1.6rem;
-    }
-    .card {
-        padding: 15px;
-    }
-    .section-title {
-        font-size: 1.2rem;
-    }
-
-    /* Radio buttons podem precisar empilhar */
-    .source-selector {
-        /* Poderia adicionar flex-direction: column aqui se necessário */
-    }
+    
     .radio-option {
-        padding: 7px 12px;
-        gap: 5px;
-    }
-    .radio-option span {
-        font-size: 0.85rem;
-    }
-
-    #searchInput {
-        padding: 12px 40px 12px 12px;
-        font-size: 0.95rem;
-    }
-
-    #songList li {
-        padding: 10px 8px 10px 12px;
-    }
-    #songList li .song-number {
-        min-width: 45px; /* Reduz espaço do número */
-        font-size: 0.9rem;
-    }
-    #songList li .song-number.no-number {
-         min-width: 45px;
-    }
-
-    #songList li .song-title {
-        font-size: 0.9rem;
-    }
-    .remove-btn {
-        font-size: 1.5rem;
-        padding: 8px; /* Garante área de toque */
-        margin: -8px -4px -8px 0;
-    }
-
-
-    .btn {
-        padding: 9px 15px;
-        font-size: 0.9rem;
-    }
-
-    /* Ajusta layout listas salvas */
-    .saved-list-item {
-        padding: 12px;
-    }
-     .saved-list-name {
-         font-size: 1rem;
-     }
-     .saved-list-info {
-         font-size: 0.8rem;
-     }
-
-    .toast {
-        bottom: 15px;
-        font-size: 0.9rem;
-        padding: 10px 18px;
+        min-height: 36px;
     }
 }
