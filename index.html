@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Louvores</title>
+    <title>Gerador de Lista de Louvores</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Lista de Louvores</h1>
+        <header class="app-header">
+            <h1>📖 Gerador de Lista de Louvores</h1>
+            <p class="subtitle">Crie e compartilhe suas listas de louvores</p>
+        </header>
         
-        <div class="search-section">
+        <!-- Seção de Busca -->
+        <div class="search-section card">
+            <h2 class="section-title">🔍 Buscar Louvores</h2>
+            
             <div class="source-selector">
                 <label class="source-label">Buscar em:</label>
                 <label class="radio-option">
@@ -31,18 +37,114 @@
                 </label>
             </div>
             
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="Buscar por Nº ou Título"
-                autocomplete="off"
-            >
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Digite o número ou título do louvor..."
+                    autocomplete="off"
+                >
+                <span class="search-icon">🔎</span>
+            </div>
+            
             <div id="searchResults"></div>
         </div>
 
-        <div class="list-section">
-            <h2>Lista Selecionada</h2>
+        <!-- Seção da Lista -->
+        <div class="list-section card">
+            <div class="list-header">
+                <div class="list-header-left">
+                    <h2 class="section-title">📝 Lista Selecionada</h2>
+                    <span id="songCounter" class="song-counter">0 louvores</span>
+                </div>
+                <div class="list-header-right">
+                    <input 
+                        type="date" 
+                        id="listDate" 
+                        class="date-input"
+                        title="Data da lista"
+                    >
+                    <button id="clearListBtn" class="btn btn-secondary" title="Limpar toda a lista">
+                        🗑️ Limpar Lista
+                    </button>
+                </div>
+            </div>
+            
             <ul id="songList"></ul>
+            
+            <!-- Opções de Exportação -->
+            <div class="export-section" id="exportSection" style="display: none;">
+                <h3 class="export-title">📤 Compartilhar Lista</h3>
+                
+                <div class="export-options">
+                    <div class="export-type">
+                        <label class="radio-option">
+                            <input type="radio" name="exportType" value="titles" checked>
+                            <span>Apenas Títulos</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="exportType" value="lyrics">
+                            <span>Com Letras</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="export-buttons">
+                    <button id="exportImageBtn" class="btn btn-primary">
+                        🖼️ Gerar Imagem
+                    </button>
+                    <button id="exportTextBtn" class="btn btn-primary">
+                        📋 Copiar Texto
+                    </button>
+                    <button id="exportLyricsBtn" class="btn btn-primary" style="display: none;">
+                        📝 Enviar Letras Individuais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salvar/Carregar Listas -->
+        <div class="saved-lists-section card">
+            <h2 class="section-title">💾 Listas Salvas</h2>
+            <div class="saved-lists-controls">
+                <input 
+                    type="text" 
+                    id="listNameInput" 
+                    placeholder="Nome da lista..."
+                    class="list-name-input"
+                >
+                <button id="saveListBtn" class="btn btn-success">
+                    💾 Salvar Lista
+                </button>
+            </div>
+            <div id="savedListsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar imagem -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Lista de Louvores</h3>
+            <canvas id="listCanvas"></canvas>
+            <div class="modal-buttons">
+                <button id="downloadImageBtn" class="btn btn-primary">
+                    ⬇️ Baixar Imagem
+                </button>
+                <button id="shareImageBtn" class="btn btn-success">
+                    📱 Compartilhar no WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para letras individuais -->
+    <div id="lyricsModal" class="modal">
+        <div class="modal-content lyrics-modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Compartilhar Letras</h3>
+            <p class="lyrics-instructions">Clique em cada louvor para copiar sua letra e compartilhar:</p>
+            <div id="lyricsListContainer"></div>
         </div>
     </div>
 
