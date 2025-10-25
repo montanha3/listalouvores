@@ -23,14 +23,19 @@
     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12); /* Sombra grande */
 }
 
+html {
+    scroll-behavior: smooth; /* Rolagem suave */
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Fontes padrão do sistema */
     /* Gradiente suave de fundo */
-    background: linear-gradient(135deg, #e0f2f7 0%, #d1c4e9 100%);
+    background: linear-gradient(135deg, #e9f5ff 0%, #e8eaf6 100%); /* Fundo mais claro e suave */
     min-height: 100vh;
     padding: 20px;
     line-height: 1.6;
     color: var(--text-dark); /* Cor de texto padrão */
+    -webkit-tap-highlight-color: transparent; /* Remove highlight azul no toque (iOS) */
 }
 
 .container {
@@ -43,21 +48,21 @@ body {
     text-align: center;
     margin-bottom: 30px;
     background: var(--bg-white);
-    padding: 30px;
+    padding: 30px 20px; /* Ajuste padding */
     border-radius: 12px;
     box-shadow: var(--shadow-md);
 }
 
 .app-header h1 {
     color: var(--primary-dark); /* Cor do título */
-    font-size: 2.5rem;
+    font-size: 2.3rem; /* Levemente menor */
     margin-bottom: 10px;
     font-weight: 700;
 }
 
 .subtitle {
     color: var(--text-medium);
-    font-size: 1.1rem;
+    font-size: 1.05rem; /* Levemente menor */
 }
 
 /* Cards */
@@ -65,13 +70,19 @@ body {
     background: var(--bg-white);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm); /* Sombra mais sutil por padrão */
     margin-bottom: 25px;
+    transition: box-shadow 0.3s ease;
 }
+/* Efeito de elevação sutil no hover */
+/* .card:hover {
+    box-shadow: var(--shadow-lg);
+} */
+
 
 .section-title {
     color: var(--primary-dark);
-    font-size: 1.5rem;
+    font-size: 1.4rem; /* Reduzido */
     margin-bottom: 20px;
     font-weight: 600;
     display: flex;
@@ -89,62 +100,60 @@ body {
 .source-selector {
     display: flex;
     align-items: center;
-    gap: 10px; /* Reduzido o gap */
+    gap: 10px;
     margin-bottom: 20px;
-    padding: 10px; /* Reduzido o padding */
+    padding: 10px;
     background: var(--bg-light);
     border-radius: 8px;
-    flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+    flex-wrap: wrap;
+    border: 1px solid var(--border-color); /* Borda sutil */
 }
 
 .source-label {
     font-weight: 600;
     color: var(--text-dark);
-    margin-right: 5px; /* Espaço após o label */
+    margin-right: 5px;
+    font-size: 0.95rem;
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    gap: 5px; /* Reduzido o gap */
+    gap: 6px; /* Aumentado um pouco */
     cursor: pointer;
-    padding: 6px 12px; /* Reduzido o padding */
+    padding: 8px 14px; /* Aumentado padding para toque */
     border-radius: 20px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     background: var(--bg-white);
-    border: 1px solid var(--border-color); /* Borda sutil */
-    user-select: none; /* Impede seleção de texto */
+    border: 1px solid var(--border-color);
+    user-select: none;
 }
 
 .radio-option:hover {
-    background: #e3f2fd; /* Azul bem claro no hover */
+    background: #e3f2fd;
     border-color: var(--primary-color);
 }
 
 .radio-option input[type="radio"] {
     cursor: pointer;
-    width: 16px; /* Tamanho menor */
-    height: 16px;
-    accent-color: var(--primary-color); /* Cor do radio selecionado */
-}
-/* Estilo quando selecionado */
-.radio-option input[type="radio"]:checked {
-    border-color: var(--primary-dark);
+    width: 18px; /* Tamanho maior para toque */
+    height: 18px;
+    accent-color: var(--primary-color);
 }
 
 .radio-option input[type="radio"]:checked + span {
     font-weight: 600;
-    color: var(--primary-dark); /* Cor mais escura quando selecionado */
+    color: var(--primary-dark);
 }
 
 .radio-option span {
     color: var(--text-dark);
-    font-size: 0.9rem; /* Tamanho menor */
+    font-size: 0.9rem;
 }
 
 .search-input-wrapper {
     position: relative;
-    margin-bottom: 15px;
+    margin-bottom: 5px; /* Reduzida margem inferior */
 }
 
 .search-icon {
@@ -153,53 +162,55 @@ body {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.2rem;
-    color: var(--text-light); /* Ícone mais claro */
+    color: var(--text-light);
     pointer-events: none;
 }
 
 #searchInput {
     width: 100%;
-    padding: 12px 40px 12px 15px; /* Ajuste padding */
+    padding: 14px 45px 14px 15px; /* Aumentado padding vertical */
     font-size: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
     transition: all 0.3s ease;
     background: var(--bg-white);
+    appearance: none; /* Remove estilos padrão do iOS */
+    -webkit-appearance: none;
 }
 
 #searchInput:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2); /* Sombra de foco mais visível */
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
 }
 
 #searchResults {
-    max-height: 300px; /* Reduzido altura máxima */
+    max-height: 45vh; /* Altura máxima baseada na tela */
     overflow-y: auto;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-top: none; /* Remove borda superior para colar no input */
+    border-radius: 0 0 8px 8px; /* Arredonda cantos inferiores */
     background: var(--bg-white);
-    margin-top: -1px; /* Encosta no input */
     display: none; /* Começa escondido */
-    position: absolute; /* Para sobrepor conteúdo abaixo */
-    width: 100%;     /* Ocupa largura total */
-    z-index: 10;     /* Fica sobre outros elementos */
-    box-shadow: var(--shadow-md); /* Sombra para destacar */
+    position: absolute; /* Sobrepõe */
+    width: 100%;
+    z-index: 10;
+    box-shadow: var(--shadow-md);
 }
 
-#searchResults:not(:empty) { /* Mostra apenas se não estiver vazio */
+#searchResults:not(:empty) {
     display: block;
 }
 
 
 .search-result-item {
-    padding: 12px 15px; /* Padding ajustado */
-    border-bottom: 1px solid var(--border-color);
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0; /* Linha divisória mais sutil */
     cursor: pointer;
-    transition: background-color 0.2s ease; /* Transição mais rápida */
+    transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 8px; /* Gap ajustado */
+    gap: 8px;
 }
 
 .search-result-item:last-child {
@@ -207,32 +218,40 @@ body {
 }
 
 .search-result-item:hover {
-    background: #e3f2fd;
+    background: #eef7ff; /* Azul ainda mais claro no hover */
+}
+.search-result-item:active { /* Feedback no toque */
+     background-color: #d1e7fd;
 }
 
 .search-result-item .song-number {
-    font-weight: 600; /* Menos negrito */
+    font-weight: 600;
     color: var(--primary-dark);
-    min-width: 55px; /* Reduzido */
-    font-size: 1rem; /* Reduzido */
-    text-align: right; /* Alinha números à direita */
+    min-width: 55px;
+    font-size: 1rem;
+    text-align: right;
     padding-right: 5px;
+    flex-shrink: 0; /* Impede que encolha */
 }
 
 .search-result-item .song-origin {
-    font-size: 0.8rem; /* Menor */
+    font-size: 0.8rem;
     color: var(--text-medium);
     font-style: italic;
-    background: #eceff1; /* Fundo diferente */
+    background: #eceff1;
     padding: 2px 6px;
     border-radius: 4px;
-    white-space: nowrap; /* Evita quebra de linha */
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .search-result-item .song-title {
-    flex-grow: 1; /* Ocupa espaço restante */
+    flex-grow: 1;
     color: var(--text-dark);
-    font-size: 0.95rem; /* Levemente menor */
+    font-size: 0.95rem;
+    overflow: hidden; /* Evita que texto longo quebre o layout */
+    text-overflow: ellipsis; /* Adiciona "..." se não couber */
+    white-space: nowrap; /* Impede quebra de linha no título */
 }
 
 /* List Section */
@@ -241,7 +260,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Permite quebra */
+    flex-wrap: wrap;
     gap: 15px;
 }
 
@@ -249,33 +268,37 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-grow: 1; /* Ocupa espaço disponível */
+    flex-grow: 1;
 }
 
 .list-header-right {
     display: flex;
     gap: 10px;
     align-items: center;
-    flex-wrap: wrap; /* Permite quebra */
+    flex-wrap: wrap;
 }
 
 .song-counter {
-    background: var(--primary-color);
-    color: white;
-    padding: 5px 10px; /* Reduzido */
-    border-radius: 16px; /* Mais arredondado */
-    font-size: 0.85rem; /* Menor */
+    background: var(--primary-light, #bbdefb); /* Cor de fundo mais clara */
+    color: var(--primary-dark); /* Texto escuro */
+    padding: 5px 12px; /* Ajustado */
+    border-radius: 16px;
+    font-size: 0.9rem; /* Aumentado um pouco */
     font-weight: 600;
-    white-space: nowrap; /* Evita quebra */
+    white-space: nowrap;
+    border: 1px solid var(--primary-color); /* Borda sutil */
 }
 
 .date-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color); /* Borda mais sutil */
+    padding: 9px 12px; /* Aumentado padding vertical */
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.95rem;
     cursor: pointer;
     transition: border-color 0.3s ease;
+    min-width: 140px; /* Largura mínima */
+    appearance: none; /* Remove estilos padrão iOS */
+    -webkit-appearance: none;
 }
 
 .date-input:focus {
@@ -286,132 +309,149 @@ body {
 #songList {
     list-style: none;
     min-height: 100px;
-    padding-left: 0; /* Remove padding padrão da UL */
+    padding-left: 0;
 }
 
 #songList li {
-    padding: 12px 15px; /* Padding ajustado */
-    margin-bottom: 8px; /* Espaço menor entre itens */
-    background: #fafafa; /* Fundo muito levemente cinza */
+    padding: 12px 10px 12px 15px; /* Ajuste padding (menos à direita) */
+    margin-bottom: 8px;
+    background: #fdfdfd; /* Fundo quase branco */
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-left: 4px solid var(--primary-color); /* Borda esquerda colorida */
+    border-radius: 6px; /* Menos arredondado */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s ease-out; /* Transição mais suave */
-    cursor: grab; /* Indica que é arrastável */
+    transition: all 0.2s ease-out;
+    cursor: grab;
 }
 #songList li:active {
-    cursor: grabbing; /* Cursor ao arrastar */
+    cursor: grabbing;
+    background: #f0f0f0; /* Fundo cinza ao arrastar */
 }
 
 
 #songList li:hover {
-    border-color: var(--primary-color);
+    border-left-color: var(--primary-dark); /* Borda escurece no hover */
     box-shadow: var(--shadow-sm);
-    /* Remove o transform para evitar 'pulo' */
 }
 
 
 #songList li .song-info {
-    flex-grow: 1; /* Ocupa espaço */
+    flex-grow: 1;
     display: flex;
-    align-items: center;
-    gap: 8px; /* Gap ajustado */
-    margin-right: 10px; /* Espaço antes das ações */
+    align-items: baseline; /* Alinha pela base do texto */
+    gap: 8px;
+    margin-right: 5px; /* Reduzido espaço antes das ações */
+    overflow: hidden; /* Previne overflow */
 }
 
 #songList li .song-number {
     font-weight: 600;
     color: var(--primary-dark);
-    min-width: 55px; /* Mesmo tamanho da busca */
+    min-width: 55px;
     font-size: 1rem;
     text-align: right;
     padding-right: 5px;
+    flex-shrink: 0; /* Não encolhe */
 }
-/* Estilo para quando não há número (Avulsos) */
 #songList li .song-number.no-number {
-    min-width: 55px; /* Mantém o espaço para alinhamento */
+    min-width: 55px;
 }
 
 
 #songList li .song-title {
     color: var(--text-dark);
-    font-size: 0.95rem;
+    font-size: 1rem; /* Tamanho maior para leitura */
+    white-space: nowrap;      /* Não quebra linha */
+    overflow: hidden;         /* Esconde o que não cabe */
+    text-overflow: ellipsis;  /* Mostra '...' */
+    flex-grow: 1;             /* Ocupa espaço */
 }
 
-/* Estilo para origem na lista principal */
 #songList li .song-origin-list {
     font-size: 0.8em;
     color: var(--text-light);
     margin-left: 5px;
     font-style: italic;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 
 .list-actions {
     display: flex;
-    gap: 5px; /* Espaço menor */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 0; /* Remove gap */
+    flex-shrink: 0; /* Não encolhe */
 }
 
 /* Botão Remover na Lista */
 .remove-btn {
     background: none;
     border: none;
-    color: var(--danger-color); /* Cor vermelha */
-    font-size: 1.4rem; /* Tamanho do 'X' ou ícone */
-    line-height: 1; /* Ajusta altura da linha */
-    padding: 0 5px; /* Espaçamento pequeno */
+    color: var(--danger-color);
+    font-size: 1.6rem; /* Ícone maior */
+    line-height: 1;
+    padding: 10px; /* AUMENTA ÁREA DE TOQUE */
+    margin: -10px -5px -10px 0; /* Compensa padding sem afetar layout */
     cursor: pointer;
     transition: color 0.2s ease;
+    border-radius: 50%; /* Faz área de toque circular */
 }
 .remove-btn:hover {
-    color: var(--danger-dark); /* Cor mais escura no hover */
-    /* Remove efeitos de botão padrão no hover */
-    background: none;
+    color: var(--danger-dark);
+    background-color: rgba(244, 67, 54, 0.1); /* Fundo vermelho sutil no hover */
     box-shadow: none;
     transform: none;
+}
+.remove-btn:active {
+     background-color: rgba(244, 67, 54, 0.2);
 }
 
 
 /* Feedback visual para Drag and Drop */
 #songList li.dragging {
-    opacity: 0.4;        /* Fica semitransparente ao arrastar */
-    border-style: dashed; /* Borda tracejada */
+    opacity: 0.4;
+    border-style: dashed;
+    background-color: #f0f0f0;
 }
 #songList li.drag-over {
-    background-color: #e3f2fd; /* Fundo azul claro ao passar por cima */
-    border-color: var(--primary-dark); /* Borda mais escura para destacar */
+    /* Linha sutil acima para indicar onde vai soltar */
+    border-top: 3px solid var(--primary-dark);
+    background-color: #e3f2fd;
+    /* Move os outros itens levemente para baixo (pode causar 'pulos') */
+    /* transform: translateY(3px); */
 }
 
 
 /* Botões Gerais */
 .btn {
-    padding: 10px 18px; /* Padding ajustado */
+    padding: 10px 18px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    transition: all 0.2s ease-out; /* Transição mais rápida */
+    transition: all 0.2s ease-out;
     display: inline-flex;
     align-items: center;
-    gap: 8px; /* Aumentado gap para ícones */
-    justify-content: center; /* Centraliza conteúdo */
-    text-align: center; /* Garante centralização do texto */
-    white-space: nowrap; /* Evita quebra de linha no botão */
+    gap: 8px;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.4; /* Melhora altura do botão */
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1); /* Feedback visual no toque */
 }
-/* Efeito suave no hover */
-.btn:hover {
-    transform: translateY(-1px); /* Leve levantada */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Sombra mais sutil */
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
-.btn:active {
-    transform: translateY(0px); /* Volta ao normal no clique */
+.btn:active:not(:disabled) {
+    transform: translateY(0px);
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    filter: brightness(0.95); /* Escurece levemente no clique */
 }
-/* Desabilitado */
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -426,17 +466,18 @@ body {
 .btn-success { background: var(--success-color); color: white; }
 .btn-success:hover:not(:disabled) { background: var(--success-dark); }
 
-.btn-secondary { background: var(--text-medium); color: white; } /* Cor secundária ajustada */
+.btn-secondary { background: var(--text-medium); color: white; }
 .btn-secondary:hover:not(:disabled) { background: var(--text-dark); }
 
 .btn-danger { background: var(--danger-color); color: white; }
 .btn-danger:hover:not(:disabled) { background: var(--danger-dark); }
 
-.btn-small { padding: 6px 12px; font-size: 0.85rem; gap: 4px; } /* Ajuste gap */
+.btn-small { padding: 6px 12px; font-size: 0.85rem; gap: 4px; }
 
-/* Ícones dentro dos botões */
 .btn svg {
-    vertical-align: middle; /* Alinha ícone com texto */
+    vertical-align: middle;
+    width: 1em; /* Garante tamanho consistente do ícone */
+    height: 1em;
 }
 
 
@@ -446,7 +487,7 @@ body {
     padding: 20px;
     background: var(--bg-light);
     border-radius: 8px;
-    border: 1px solid var(--border-color); /* Borda sólida */
+    border: 1px solid var(--border-color);
 }
 
 .export-title {
@@ -463,62 +504,65 @@ body {
 .export-type {
     display: flex;
     gap: 15px;
-    flex-wrap: wrap; /* Permite quebra */
+    flex-wrap: wrap;
 }
 
 .export-buttons {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap; /* Permite quebra */
+    gap: 12px; /* Aumentado gap */
+    flex-wrap: wrap;
 }
 
 /* Saved Lists Section */
 .saved-lists-section .section-title {
-    color: var(--success-dark); /* Título verde escuro */
+    color: var(--success-dark);
     border-bottom-color: var(--success-color);
 }
 .saved-lists-controls {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Permite quebra */
+    flex-wrap: wrap;
 }
 
 .list-name-input {
-    flex-grow: 1; /* Ocupa espaço */
-    padding: 10px 15px;
+    flex-grow: 1;
+    padding: 11px 15px; /* Aumentado padding */
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 0.95rem;
-    min-width: 150px; /* Largura mínima */
+    font-size: 1rem; /* Tamanho maior */
+    min-width: 150px;
+    appearance: none; /* Remove estilos padrão iOS */
+    -webkit-appearance: none;
 }
 
 .list-name-input:focus {
-    border-color: var(--success-color); /* Foco verde */
+    border-color: var(--success-color);
     outline: none;
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 #savedListsContainer {
     display: grid;
-    /* Colunas responsivas: mínimo 250px, máximo 1fr */
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 15px;
 }
 
 .saved-list-item {
     padding: 15px;
-    background: #f1f8e9; /* Fundo verde bem claro */
-    border: 1px solid #c8e6c9; /* Borda verde clara */
-    border-radius: 8px;
+    background: #f1f8e9;
+    border: 1px solid #c8e6c9;
+    border-left: 4px solid var(--success-color); /* Borda esquerda verde */
+    border-radius: 6px;
     transition: all 0.2s ease-out;
-    display: flex; /* Flex para alinhar ações */
-    flex-direction: column; /* Conteúdo em coluna */
+    display: flex;
+    flex-direction: column;
 }
 
 .saved-list-item:hover {
     border-color: var(--success-dark);
     box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
 }
 
 .saved-list-name {
@@ -526,21 +570,21 @@ body {
     color: var(--success-dark);
     margin-bottom: 8px;
     font-size: 1.05rem;
-    word-break: break-word; /* Quebra nomes longos */
+    word-break: break-word;
 }
 
 .saved-list-info {
     font-size: 0.85rem;
-    color: var(--text-medium); /* Cor ajustada */
-    margin-bottom: 12px; /* Mais espaço antes dos botões */
-    flex-grow: 1; /* Empurra ações para baixo */
+    color: var(--text-medium);
+    margin-bottom: 12px;
+    flex-grow: 1;
 }
 .saved-list-info span, .saved-list-info small {
-    display: block; /* Cada informação em uma linha */
+    display: block;
     line-height: 1.4;
 }
 .saved-list-info small {
-    color: var(--text-light); /* Data de salvamento mais clara */
+    color: var(--text-light);
     margin-top: 4px;
 }
 
@@ -548,28 +592,28 @@ body {
 .saved-list-actions {
     display: flex;
     gap: 8px;
-    margin-top: auto; /* Mantém ações na base */
+    margin-top: auto;
 }
 
 /* Modal */
 .modal {
-    display: none; /* Escondido por padrão */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
-    backdrop-filter: blur(4px); /* Efeito de desfoque */
-    overflow: auto; /* Permite scroll se conteúdo for maior */
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    overflow: auto;
 }
 
 .modal.show {
-    display: flex; /* Mostra como flex para centralizar */
+    display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.3s ease-out; /* Animação de entrada */
+    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -580,15 +624,15 @@ body {
 
 .modal-content {
     background: var(--bg-white);
-    padding: 25px 30px; /* Padding ajustado */
-    border-radius: 10px; /* Borda menos arredondada */
+    padding: 25px 30px;
+    border-radius: 10px;
     max-width: 90%;
-    width: auto; /* Largura automática baseada no conteúdo */
-    max-height: 90vh; /* Altura máxima baseada na viewport */
-    overflow-y: auto; /* Scroll vertical se necessário */
+    width: auto;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: var(--shadow-lg);
     position: relative;
-    animation: slideUp 0.3s ease-out; /* Animação de entrada */
+    animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
@@ -597,26 +641,26 @@ body {
 }
 
 
-/* Tamanho específico para modal de letras */
 .lyrics-modal-content {
     max-width: 600px;
-    width: 90%; /* Ajuste para mobile */
+    width: 90%;
 }
 
 .modal-close {
     position: absolute;
-    right: 15px; /* Mais perto da borda */
+    right: 15px;
     top: 15px;
-    font-size: 1.8rem; /* Tamanho ajustado */
+    font-size: 1.8rem;
     font-weight: bold;
     cursor: pointer;
     color: var(--text-light);
     transition: color 0.2s;
     line-height: 1;
+    padding: 5px; /* Área de toque maior */
 }
 
 .modal-close:hover {
-    color: var(--danger-color); /* Vermelho no hover */
+    color: var(--danger-color);
 }
 
 .modal h3 {
@@ -626,22 +670,21 @@ body {
     text-align: center;
 }
 
-/* Canvas no modal de imagem */
 #listCanvas {
-    border: 1px solid var(--border-color); /* Borda sutil */
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    margin: 20px auto; /* Centraliza horizontalmente */
-    display: block; /* Para margin auto funcionar */
+    margin: 20px auto;
+    display: block;
     max-width: 100%;
-    height: auto; /* Mantém proporção */
-    background-color: #f9f9f9; /* Fundo leve para contraste */
+    height: auto;
+    background-color: #f9f9f9;
 }
 
 .modal-buttons {
     display: flex;
-    gap: 15px; /* Mais espaço */
+    gap: 15px;
     justify-content: center;
-    margin-top: 25px; /* Espaço acima dos botões */
+    margin-top: 25px;
     flex-wrap: wrap;
 }
 
@@ -657,9 +700,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 60vh; /* Limita altura */
-    overflow-y: auto; /* Scroll se necessário */
-    padding-right: 5px; /* Espaço para scrollbar */
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 .lyrics-item {
@@ -669,12 +712,16 @@ body {
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
+    border-left: 4px solid var(--success-color); /* Borda esquerda verde */
 }
 
 .lyrics-item:hover {
-    border-color: var(--success-color);
-    background: #e8f5e9; /* Verde claro no hover */
-    transform: translateX(3px); /* Leve deslocamento */
+    border-color: var(--success-dark);
+    background: #e8f5e9;
+    transform: translateX(3px);
+}
+.lyrics-item:active {
+     background-color: #c8e6c9;
 }
 
 .lyrics-item-header {
@@ -685,7 +732,7 @@ body {
 }
 
 .lyrics-item-hint {
-    font-size: 0.8rem; /* Menor */
+    font-size: 0.8rem;
     color: var(--text-light);
 }
 
@@ -693,91 +740,105 @@ body {
 .empty-message {
     text-align: center;
     color: var(--text-light);
-    padding: 30px 20px; /* Padding ajustado */
+    padding: 30px 20px;
     font-style: italic;
     font-size: 0.95rem;
 }
 
-/* --- Estilos do Toast (adicionados/movidos para cá) --- */
+/* --- Estilos do Toast --- */
 .toast {
     position: fixed;
-    bottom: 25px;       /* Posição vertical */
-    left: 50%;          /* Centraliza horizontalmente */
-    transform: translateX(-50%); /* Ajuste fino para centralização */
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
     color: white;
-    padding: 12px 25px; /* Padding ajustado */
+    padding: 12px 25px;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    z-index: 2000;      /* Fica sobre tudo */
+    z-index: 2000;
     font-size: 0.95rem;
-    opacity: 0;        /* Começa invisível */
-    transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Transição suave */
+    opacity: 0;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
     text-align: center;
     min-width: 250px;
     max-width: 90%;
-    /* Animação de entrada */
     animation: toastIn 0.4s ease-out forwards;
 }
 
 @keyframes toastIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px); /* Começa um pouco abaixo */
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
-
 
 /* Cores do Toast */
 .toast-success { background-color: var(--success-color); }
 .toast-error   { background-color: var(--danger-color); }
 .toast-warning { background-color: var(--warning-color); }
-.toast-info    { background-color: var(--primary-color); } /* Azul para info */
+.toast-info    { background-color: var(--primary-color); }
 
 
-/* Responsividade */
+/* Estilo adicional para inputs desabilitados */
+input:disabled, button:disabled {
+    background-color: #eeeeee !important; /* Força fundo cinza */
+    border-color: #dddddd !important; /* Borda cinza */
+    color: #aaaaaa !important; /* Texto cinza claro */
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    transform: none;
+}
+
+
+/* --- Media Queries para Responsividade --- */
+
+/* Telas menores (tablets e celulares grandes em paisagem) */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 15px; /* Aumenta padding lateral */
     }
 
     .app-header h1 {
-        font-size: 1.8rem;
+        font-size: 1.8rem; /* Reduz tamanho do título principal */
+    }
+     .subtitle {
+        font-size: 1rem;
     }
 
     .card {
-        padding: 20px; /* Aumentado padding em telas menores */
+        padding: 20px; /* Reduz padding interno dos cards */
+    }
+    .section-title {
+        font-size: 1.3rem; /* Reduz títulos de seção */
     }
 
-    /* Ajusta header da lista para empilhar melhor */
+    /* Ajusta header da lista */
     .list-header {
         flex-direction: column;
-        align-items: stretch; /* Ocupa largura total */
+        align-items: stretch;
     }
     .list-header-left, .list-header-right {
         width: 100%;
-        justify-content: space-between; /* Espaça itens internos */
+        justify-content: space-between;
     }
      .list-header-right {
-        flex-direction: column; /* Empilha data e botão */
-        align-items: stretch; /* Ocupa largura */
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px; /* Reduz gap entre data e botão limpar */
     }
     .date-input,
     #clearListBtn {
-        width: 100%; /* Largura total */
+        width: 100%;
     }
 
 
     /* Botões de exportação em coluna */
     .export-buttons {
         flex-direction: column;
-        align-items: stretch; /* Ocupa largura */
+        align-items: stretch;
+        gap: 10px; /* Reduz gap */
     }
     .export-buttons .btn {
-        width: 100%; /* Largura total */
+        width: 100%;
     }
 
     .saved-lists-controls {
@@ -789,7 +850,7 @@ body {
         grid-template-columns: 1fr; /* Uma coluna */
     }
 
-    /* Modal com mais largura em telas pequenas */
+    /* Modal com mais largura */
     .modal-content {
         width: 95%;
         max-width: 95%;
@@ -800,10 +861,79 @@ body {
     }
 }
 
+/* Telas ainda menores (celulares em retrato) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px; /* Reduz ainda mais */
+        font-size: 15px; /* Ajusta tamanho base da fonte */
+    }
+    .app-header h1 {
+        font-size: 1.6rem;
+    }
+    .card {
+        padding: 15px;
+    }
+    .section-title {
+        font-size: 1.2rem;
+    }
 
-/* Estilo adicional para inputs desabilitados */
-input:disabled, button:disabled {
-    background-color: #eeeeee;
-    cursor: not-allowed;
-    opacity: 0.7;
+    /* Radio buttons podem precisar empilhar */
+    .source-selector {
+        /* Poderia adicionar flex-direction: column aqui se necessário */
+    }
+    .radio-option {
+        padding: 7px 12px;
+        gap: 5px;
+    }
+    .radio-option span {
+        font-size: 0.85rem;
+    }
+
+    #searchInput {
+        padding: 12px 40px 12px 12px;
+        font-size: 0.95rem;
+    }
+
+    #songList li {
+        padding: 10px 8px 10px 12px;
+    }
+    #songList li .song-number {
+        min-width: 45px; /* Reduz espaço do número */
+        font-size: 0.9rem;
+    }
+    #songList li .song-number.no-number {
+         min-width: 45px;
+    }
+
+    #songList li .song-title {
+        font-size: 0.9rem;
+    }
+    .remove-btn {
+        font-size: 1.5rem;
+        padding: 8px; /* Garante área de toque */
+        margin: -8px -4px -8px 0;
+    }
+
+
+    .btn {
+        padding: 9px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* Ajusta layout listas salvas */
+    .saved-list-item {
+        padding: 12px;
+    }
+     .saved-list-name {
+         font-size: 1rem;
+     }
+     .saved-list-info {
+         font-size: 0.8rem;
+     }
+
+    .toast {
+        bottom: 15px;
+        font-size: 0.9rem;
+        padding: 10px 18px;
+    }
 }
