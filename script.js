@@ -400,7 +400,8 @@ function displaySearchResults(results, selectedSource) {
         const resultItem = document.createElement('div');
         resultItem.className = 'search-result-item';
         
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+        // CORREÇÃO 2: Mostrar prefixo CIAS na busca
+        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero) : '';
 
         let displayText = '';
         if (displayNumber) {
@@ -424,22 +425,18 @@ function displaySearchResults(results, selectedSource) {
  * Retorna 'false' se o usuário cancelar.
  */
 function checkRecentSong(songData) {
-    if (!currentChurch || churchLists.length === 0) return true; // Se não há listas, permitir adicionar
+    if (!currentChurch || churchLists.length === 0) return true;
 
     const currentDate = new Date(listDate.value);
-    // CORREÇÃO 1: Ajustado para 5 dias atrás
     const fiveDaysAgo = new Date(currentDate);
     fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5); 
 
-    // CORREÇÃO 2: Comparação em minúsculas para títulos
     const songId = `${songData.origem}-${songData.numero || songData.titulo.toLowerCase()}`;
 
     for (const list of churchLists) {
         const listDateObj = new Date(list.date);
-        // CORREÇÃO 1 (cont.): Usando a data correta
         if (listDateObj >= fiveDaysAgo && listDateObj < currentDate) {
             
-            // CORREÇÃO 2 (cont.): Comparação em minúsculas
             const hasSong = list.songs.some(song => 
                 `${song.origem}-${song.numero || song.titulo.toLowerCase()}` === songId
             );
@@ -450,16 +447,15 @@ function checkRecentSong(songData) {
                 
                 const dayText = daysAgo === 0 ? 'hoje' : daysAgo === 1 ? 'ontem' : `há ${daysAgo} dias`;
                 
-                // MUDANÇA SOLICITADA: Usar confirm()
                 const confirmation = confirm(
                     `ATENÇÃO: Este louvor foi cantado ${dayText} (${formattedDate}).\n\nDeseja adicionar mesmo assim?`
                 );
-                return confirmation; // Retorna true (adiciona) ou false (cancela)
+                return confirmation;
             }
         }
     }
 
-    return true; // Não encontrou em listas recentes, permitir adicionar
+    return true;
 }
 
 
@@ -474,9 +470,8 @@ function addSongToList(songData) {
         return;
     }
 
-    // Agora esta verificação pode retornar 'false' se o usuário cancelar
     if (!checkRecentSong(songData)) {
-        return; // Usuário cancelou a adição do louvor recente
+        return;
     }
     
     selectedSongs.push(songData);
@@ -486,16 +481,31 @@ function addSongToList(songData) {
     showToast(`"${songData.titulo}" adicionado`, 'success');
 }
 
+// CORREÇÃO 3: Adicionar opção "Louvor do Grupo"
+function addGroupSong() {
+    const groupSong = {
+        titulo: 'Louvor do Grupo',
+        numero: '',
+        origem: 'Grupo',
+        letra: '',
+        isCustom: false
+    };
+    
+    selectedSongs.push(groupSong);
+    updateSelectedList();
+    showToast('Louvor do Grupo adicionado', 'success');
+}
+
 function updateSelectedList() {
     songList.innerHTML = '';
     const count = selectedSongs.length;
     songCounter.textContent = `${count} ${count === 1 ? 'louvor' : 'louvores'}`;
 
-    // Remove botão anterior se existir
+    // Remove botões anteriores se existirem
     const existingReorderBtn = document.getElementById('reorderBtn');
-    if (existingReorderBtn) {
-        existingReorderBtn.remove();
-    }
+    const existingGroupBtn = document.getElementById('groupSongBtn');
+    if (existingReorderBtn) existingReorderBtn.remove();
+    if (existingGroupBtn) existingGroupBtn.remove();
 
     if (count === 0) {
         songList.innerHTML = '<div class="empty-message">Busque e adicione louvores</div>';
@@ -504,6 +514,16 @@ function updateSelectedList() {
     }
 
     exportSection.style.display = 'block';
+
+    // CORREÇÃO 3: Botão para adicionar Louvor do Grupo
+    const groupBtn = document.createElement('button');
+    groupBtn.id = 'groupSongBtn';
+    groupBtn.className = 'btn btn-success';
+    groupBtn.style.marginBottom = '10px';
+    groupBtn.style.marginRight = '10px';
+    groupBtn.innerHTML = '🎤 Louvor do Grupo';
+    groupBtn.addEventListener('click', addGroupSong);
+    songList.parentElement.insertBefore(groupBtn, songList);
 
     // Botão de reordenar se houver mais de 1
     if (count > 1) {
@@ -519,8 +539,16 @@ function updateSelectedList() {
     selectedSongs.forEach((song, index) => {
         const listItem = document.createElement('li');
         
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
-        const originSpan = song.origem !== 'Igreja' ? `<span style="font-size:0.7rem;color:#999;margin-left:4px;">(${song.origem})</span>` : '';
+        // CORREÇÃO 2: Mostrar prefixo CIAS na lista
+        let displayNumber = '';
+        if (song.origem === 'Grupo') {
+            displayNumber = '';
+        } else if (song.numero) {
+            displayNumber = song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero;
+        }
+        
+        const originSpan = (song.origem !== 'Igreja' && song.origem !== 'Grupo') ? 
+            `<span style="font-size:0.7rem;color:#999;margin-left:4px;">(${song.origem})</span>` : '';
 
         listItem.innerHTML = `
             <div class="song-info">
@@ -565,7 +593,7 @@ function openReorderModal() {
         const listItem = document.createElement('li');
         listItem.dataset.index = index;
         
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero) : '';
         
         listItem.textContent = `${displayNumber ? displayNumber + ' - ' : ''}${song.titulo}`;
         
@@ -640,20 +668,19 @@ function saveReorder() {
 
 // --- Louvores Personalizados ---
 async function loadCustomSongs() {
-    if (!window.firebaseDb || !dbRefCustomSongs || !currentChurch) return;
+    if (!window.firebaseDb || !dbRefCustomSongs) return;
 
     try {
         const snapshot = await window.firebaseDb.get(dbRefCustomSongs);
         customSongs = [];
 
         if (snapshot.exists()) {
+            // CORREÇÃO 1: Carregar todos os louvores personalizados de todas as igrejas
             snapshot.forEach(child => {
                 const song = child.val();
-                if (song.churchName === currentChurch) {
-                    song.id = child.key;
-                    song.isCustom = true;
-                    customSongs.push(song);
-                }
+                song.id = child.key;
+                song.isCustom = true;
+                customSongs.push(song);
             });
         }
 
@@ -677,7 +704,7 @@ function addCustomSong() {
         numero: newSongNumber.value.trim(),
         letra: newSongLyrics.value.trim(),
         origem: document.querySelector('input[name="newSongType"]:checked').value,
-        churchName: currentChurch,
+        churchName: currentChurch, // CORREÇÃO 1: Guardar quem criou
         createdAt: new Date().toISOString()
     };
 
@@ -685,7 +712,7 @@ function addCustomSong() {
     
     window.firebaseDb.set(newSongRef, newSong)
         .then(() => {
-            showToast('Louvor adicionado!', 'success');
+            showToast('Louvor adicionado para todas as igrejas!', 'success');
             newSongTitle.value = '';
             newSongNumber.value = '';
             newSongLyrics.value = '';
@@ -711,22 +738,31 @@ function displayCustomSongs() {
         
         const displayNumber = song.numero ? ` - Nº ${song.numero}` : '';
         
+        // CORREÇÃO 1: Mostrar quem criou e permitir excluir apenas para quem criou
+        const canDelete = song.churchName === currentChurch;
+        const creatorInfo = song.churchName ? `<br>👤 Criado por: ${song.churchName}` : '';
+        
         item.innerHTML = `
             <div class="custom-song-header">
                 <span class="custom-song-title">${song.titulo}${displayNumber}</span>
                 <div class="custom-song-actions">
-                    <button class="btn btn-primary btn-small edit-custom-btn">Editar</button>
-                    <button class="btn btn-danger btn-small delete-custom-btn">Excluir</button>
+                    ${canDelete ? '<button class="btn btn-primary btn-small edit-custom-btn">Editar</button>' : ''}
+                    ${canDelete ? '<button class="btn btn-danger btn-small delete-custom-btn">Excluir</button>' : ''}
                 </div>
             </div>
             <div class="custom-song-info">
                 📚 ${song.origem}
                 ${song.letra ? ' • 📝 Com letra' : ''}
+                ${creatorInfo}
             </div>
         `;
 
-        item.querySelector('.edit-custom-btn').addEventListener('click', () => editCustomSong(song));
-        item.querySelector('.delete-custom-btn').addEventListener('click', () => deleteCustomSong(song.id, song.titulo));
+        if (canDelete) {
+            const editBtn = item.querySelector('.edit-custom-btn');
+            const deleteBtn = item.querySelector('.delete-custom-btn');
+            if (editBtn) editBtn.addEventListener('click', () => editCustomSong(song));
+            if (deleteBtn) deleteBtn.addEventListener('click', () => deleteCustomSong(song.id, song.titulo));
+        }
 
         customSongsContainer.appendChild(item);
     });
@@ -787,6 +823,7 @@ function deleteCustomSong(songId, songTitle) {
 }
 
 // --- Exportação ---
+// CORREÇÃO 4: Gerar imagem com mínimo 6 linhas
 function generateImage() {
     if (selectedSongs.length === 0) {
         showToast("Adicione louvores", "warning");
@@ -798,57 +835,94 @@ function generateImage() {
     const width = 800;
     const lineHeight = 45;
     const headerHeight = 140;
-    const contentHeight = selectedSongs.length * lineHeight;
+    
+    // CORREÇÃO 4: Garantir mínimo de 6 linhas
+    const minLines = 6;
+    const actualLines = Math.max(selectedSongs.length, minLines);
+    const contentHeight = actualLines * lineHeight;
     const totalHeight = headerHeight + contentHeight + 20;
 
     canvas.width = width;
     canvas.height = totalHeight;
 
+    // Fundo branco
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, totalHeight);
 
+    // Cabeçalho
     ctx.fillStyle = '#1976D2';
     ctx.font = 'bold 32px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('LISTA DE LOUVORES', width / 2, 40);
+    ctx.fillText('LOUVORES', width / 2, 40);
 
     ctx.fillStyle = '#666';
     ctx.font = '20px Arial';
-    ctx.fillText(currentChurch, width / 2, 70);
-
     const formattedDate = formatDateForDisplay(listDate.value);
-    ctx.fillText(formattedDate, width / 2, 95);
+    ctx.fillText(`Data: ${formattedDate}`, width / 2, 80);
 
-    ctx.strokeStyle = '#2196F3';
+    // Linha divisória
+    ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(50, 110);
-    ctx.lineTo(width - 50, 110);
+    ctx.moveTo(60, 110);
+    ctx.lineTo(width - 60, 110);
     ctx.stroke();
 
+    // Cabeçalho da tabela
     ctx.fillStyle = '#333';
     ctx.font = 'bold 18px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText('Nº', 60, 135);
-    ctx.fillText('TÍTULO', 150, 135);
+    ctx.fillText('Nº', 80, 135);
+    ctx.fillText('Nome do Hino', 180, 135);
 
+    // Linhas da tabela
     ctx.font = '18px Arial';
-    selectedSongs.forEach((song, index) => {
-        const y = headerHeight + 20 + (index * lineHeight);
+    for (let i = 0; i < actualLines; i++) {
+        const y = headerHeight + 20 + (i * lineHeight);
         
-        ctx.fillStyle = '#1976D2';
-        ctx.font = 'bold 18px Arial';
-        const displayNumber = song.numero ? (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '-';
-        ctx.fillText(displayNumber, 60, y);
+        // Linha horizontal
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(60, y + 10);
+        ctx.lineTo(width - 60, y + 10);
+        ctx.stroke();
+        
+        // Linha vertical entre nº e nome
+        ctx.beginPath();
+        ctx.moveTo(160, y - 15);
+        ctx.lineTo(160, y + 10);
+        ctx.stroke();
+        
+        if (i < selectedSongs.length) {
+            const song = selectedSongs[i];
+            
+            // Número
+            ctx.fillStyle = '#1976D2';
+            ctx.font = 'bold 18px Arial';
+            let displayNumber = '';
+            if (song.origem === 'Grupo') {
+                displayNumber = '';
+            } else if (song.numero) {
+                displayNumber = song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero;
+            }
+            ctx.fillText(displayNumber, 80, y);
 
-        ctx.fillStyle = '#333';
-        ctx.font = '18px Arial';
-        let titulo = song.titulo;
-        if (titulo.length > 50) {
-            titulo = titulo.substring(0, 47) + '...';
+            // Título
+            ctx.fillStyle = '#333';
+            ctx.font = '18px Arial';
+            let titulo = song.titulo;
+            if (titulo.length > 40) {
+                titulo = titulo.substring(0, 37) + '...';
+            }
+            ctx.fillText(titulo, 180, y);
         }
-        ctx.fillText(titulo, 150, y);
-    });
+    }
+
+    // Bordas externas
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(60, 100, width - 120, totalHeight - 120);
 
     imageModal.classList.add('show');
 }
@@ -892,10 +966,13 @@ function sendViaWhatsApp() {
     selectedSongs.forEach((song) => {
         let prefix = '';
         
-        if (song.origem === 'Avulsos' && !song.numero) {
+        // CORREÇÃO 2: Prefixo CIAS no WhatsApp
+        if (song.origem === 'Grupo') {
+            prefix = '*Louvor do Grupo*';
+        } else if (song.origem === 'Avulsos' && !song.numero) {
             prefix = '*Avulso*';
         } else if (song.numero) {
-            const displayNumber = song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero;
+            const displayNumber = song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero;
             prefix = `*${displayNumber}*`;
         } else {
             prefix = '*—*';
@@ -1012,11 +1089,11 @@ function generateReport() {
         return;
     }
 
-    // Separar contagem por origem
     const songCountByOrigin = {
         'Igreja': {},
         'CIAS': {},
-        'Avulsos': {}
+        'Avulsos': {},
+        'Grupo': {}
     };
 
     churchLists.forEach(list => {
@@ -1031,17 +1108,17 @@ function generateReport() {
         });
     });
 
-    // Criar Top 5 para cada categoria
     const categories = [
         { name: 'Igreja', icon: '⛪', color: '#2196F3' },
         { name: 'CIAS', icon: '👶', color: '#FF9800' },
-        { name: 'Avulsos', icon: '📝', color: '#4CAF50' }
+        { name: 'Avulsos', icon: '📝', color: '#4CAF50' },
+        { name: 'Grupo', icon: '🎤', color: '#9C27B0' }
     ];
 
     categories.forEach(category => {
         const songs = Object.values(songCountByOrigin[category.name]);
         
-        if (songs.length === 0) return; // Pula se não houver músicas desta categoria
+        if (songs.length === 0) return;
         
         const sortedSongs = songs.sort((a, b) => b.count - a.count);
         const top5 = sortedSongs.slice(0, 5);
@@ -1056,7 +1133,7 @@ function generateReport() {
         top5.forEach((item, index) => {
             const song = item.song;
             const displayNumber = song.numero ? 
-                (song.origem === 'CIAS' ? `CIAS-${song.numero}` : song.numero) : '';
+                (song.origem === 'CIAS' ? `CIAS ${song.numero}` : song.numero) : '';
 
             const reportItem = document.createElement('li');
             reportItem.className = 'report-item';
@@ -1075,7 +1152,6 @@ function generateReport() {
         reportContent.appendChild(reportCard);
     });
 
-    // Card Estatísticas Gerais
     const totalSongs = Object.values(songCountByOrigin).reduce((sum, origin) => 
         sum + Object.keys(origin).length, 0
     );
@@ -1090,6 +1166,7 @@ function generateReport() {
             <p style="margin-bottom: 8px;"><strong>Igreja:</strong> ${Object.keys(songCountByOrigin['Igreja']).length} hinos</p>
             <p style="margin-bottom: 8px;"><strong>CIAS:</strong> ${Object.keys(songCountByOrigin['CIAS']).length} hinos</p>
             <p style="margin-bottom: 8px;"><strong>Avulsos:</strong> ${Object.keys(songCountByOrigin['Avulsos']).length} hinos</p>
+            <p style="margin-bottom: 8px;"><strong>Grupo:</strong> ${Object.keys(songCountByOrigin['Grupo']).length} vezes</p>
             <p><strong>Total cantados:</strong> ${churchLists.reduce((sum, list) => sum + list.songs.length, 0)}</p>
         </div>
     `;
